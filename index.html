@@ -130,17 +130,25 @@
     input[type="range"] { width: 100%; accent-color: var(--coral); }
     .scale { display: flex; justify-content: space-between; color: #8a9b99; font-size: 10px; margin-top: 4px; }
     .counter-row {
-      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px;
-      padding: 11px 9px; min-height: 62px; border-bottom: 1px solid var(--line);
+      display: grid; gap: 14px;
+      padding: 14px 9px 18px; border-bottom: 1px solid var(--line);
     }
     .counter-row:last-child { border-bottom: 0; }
-    .counter-control { display: flex; align-items: center; gap: 9px; }
+    .counter-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .counter-control { display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 10px; }
     .counter-btn {
-      width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 11px; background: white;
-      color: var(--teal); font-size: 20px; font-weight: 800; cursor: pointer;
+      border: 1px solid var(--line); border-radius: 15px; cursor: pointer; font-weight: 850;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
     }
-    .counter-btn:hover { background: var(--mint-soft); border-color: var(--teal); }
-    .counter-value { min-width: 32px; text-align: center; font-family: var(--font-display); font-size: 23px; font-weight: 700; }
+    .counter-btn:active { transform: scale(.98); }
+    .counter-minus { min-height: 64px; background: white; color: var(--teal); font-size: 28px; }
+    .counter-minus:hover { background: var(--mint-soft); border-color: var(--teal); }
+    .counter-plus {
+      min-height: 86px; border-color: var(--teal); background: var(--teal); color: white;
+      font-size: 46px; line-height: 1;
+    }
+    .counter-plus:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
+    .counter-value { min-width: 48px; text-align: right; font-family: var(--font-display); color: var(--teal); font-size: 34px; font-weight: 750; }
     .field-input, .field-select, .notes {
       width: 100%; border: 1px solid var(--line); background: white; color: var(--ink); border-radius: 13px;
       padding: 11px 12px; outline: none; transition: border .18s, box-shadow .18s;
@@ -185,6 +193,40 @@
     .mini-bar span { display: block; height: 100%; background: var(--coral); border-radius: inherit; }
     .day-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 7px; }
     .no-history { text-align: center; padding: 65px 20px; border: 1px dashed #c9d8d2; border-radius: 22px; color: var(--muted); }
+
+    .calendar-card { padding: 20px; }
+    .calendar-toolbar { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .calendar-toolbar h2 { margin: 0; text-align: center; font-size: 24px; }
+    .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
+    .calendar-weekdays { margin-bottom: 7px; color: var(--muted); font-size: 11px; font-weight: 800; text-align: center; text-transform: uppercase; }
+    .calendar-day, .calendar-blank {
+      min-height: 68px; border-radius: 15px;
+    }
+    .calendar-day {
+      position: relative; display: grid; place-items: center; border: 1px solid var(--line);
+      background: white; color: var(--ink); cursor: pointer; font-weight: 800;
+    }
+    .calendar-day:hover { border-color: var(--teal); background: var(--mint-soft); }
+    .calendar-day.today { box-shadow: inset 0 0 0 2px var(--coral); }
+    .calendar-day.selected { border-color: var(--teal); background: var(--teal); color: white; }
+    .calendar-day.has-entry::after {
+      content: ""; position: absolute; bottom: 8px; width: 7px; height: 7px;
+      border-radius: 50%; background: var(--coral);
+    }
+    .calendar-day.selected.has-entry::after { background: white; }
+    .calendar-day:disabled { opacity: .3; cursor: not-allowed; background: var(--mint-soft); }
+    .calendar-legend { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 16px; color: var(--muted); font-size: 12px; }
+    .calendar-legend-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+    .appointment-list { display: grid; gap: 8px; margin: 14px 0; }
+    .appointment-row {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+      padding: 11px 12px; border-radius: 13px; background: var(--mint-soft);
+    }
+    .appointment-time { min-width: 56px; color: var(--teal); font-size: 12px; font-weight: 850; }
+    .appointment-row strong { font-size: 13px; }
+    .appointment-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 13px; color: var(--muted); font-size: 12px; text-align: center; }
+    .appointment-form { display: grid; grid-template-columns: 125px 1fr auto; gap: 8px; align-items: end; }
+    .calendar-note { min-height: 76px; }
 
     .settings-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
     .manage-card { padding: 20px; }
@@ -235,6 +277,8 @@
     .behavior-row strong { font-size: 13px; }
     .behavior-row small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
     .custom-section-name { background: white; }
+    .behavior-row.card-name-row { grid-template-columns: minmax(0,1fr) auto; }
+    .behavior-row .row-actions { justify-content: flex-end; }
 
     dialog {
       width: min(460px, calc(100% - 28px)); border: 0; border-radius: 24px; padding: 0; color: var(--ink);
@@ -272,11 +316,18 @@
       .sidebar { grid-template-columns: 1fr; }
       .data-actions { grid-template-columns: 1fr; }
       .nav-btn { padding: 10px 5px; font-size: 12px; }
+      .calendar-card { padding: 14px 10px; }
+      .calendar-weekdays, .calendar-grid { gap: 4px; }
+      .calendar-day, .calendar-blank { min-height: 47px; border-radius: 11px; }
+      .calendar-day.has-entry::after { bottom: 5px; width: 6px; height: 6px; }
+      .appointment-form { grid-template-columns: 105px 1fr; }
+      .appointment-form .btn { grid-column: 1 / -1; }
       .settings-fields { grid-template-columns: 1fr; }
       .settings-fields .wide { grid-column: auto; }
       .preset-grid { grid-template-columns: 1fr 1fr; }
       .behavior-row { grid-template-columns: 1fr auto; }
       .behavior-row .field-select { grid-column: 1 / -1; grid-row: 2; }
+      .behavior-row.card-name-row { grid-template-columns: 1fr auto; }
     }
   </style>
 </head>
@@ -387,7 +438,7 @@
 
           <section class="card side-card tip">
             <h3 id="reminderHeading">A gentle reminder</h3>
-            <p>This tracker supports—not replaces—medical care. Seek urgent help for severe bleeding, chest pain, trouble breathing, seizures, or thoughts of harming yourself or your baby.</p>
+            <p id="reminderMessage">Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.</p>
           </section>
         </aside>
       </div>
@@ -400,6 +451,26 @@
         <p>Look back without judgment. Patterns can help you and your care team understand what you need.</p>
       </div>
       <div class="history-grid" id="historyGrid"></div>
+    </section>
+
+    <section class="panel" id="calendarPanel">
+      <div class="page-intro">
+        <div class="eyebrow" style="color:var(--coral)">Day by day</div>
+        <h1>Calendar</h1>
+        <p>See saved activity and tap any day to manage appointments, notes, or its recovery form.</p>
+      </div>
+      <section class="card calendar-card">
+        <div class="calendar-toolbar">
+          <button class="icon-btn" id="prevMonth" aria-label="Previous month">‹</button>
+          <h2 id="calendarMonth"></h2>
+          <button class="icon-btn" id="nextMonth" aria-label="Next month">›</button>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-legend"><span class="calendar-legend-dot"></span> Saved activity</div>
+      </section>
     </section>
 
     <section class="panel" id="customizePanel">
@@ -458,46 +529,40 @@
               <div><strong id="behaviorRoutineName">Morning routine</strong><small>Built-in section</small></div>
               <select class="field-select core-behavior" data-section="routine">
                 <option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
-              </select><span></span>
+              </select><button class="tiny-btn edit-section-name" data-heading="routine" title="Rename section" aria-label="Rename morning routine">✎</button>
             </div>
             <div class="behavior-row">
               <div><strong id="behaviorGoalsName">Daily goals</strong><small>Built-in section</small></div>
               <select class="field-select core-behavior" data-section="goals">
                 <option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
-              </select><span></span>
+              </select><button class="tiny-btn edit-section-name" data-heading="goals" title="Rename section" aria-label="Rename daily goals">✎</button>
             </div>
             <div class="behavior-row">
               <div><strong id="behaviorMetricsName">How you're feeling</strong><small>Built-in section</small></div>
               <select class="field-select core-behavior" data-section="metrics">
                 <option value="flexible">Flexible fields</option><option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
-              </select><span></span>
+              </select><button class="tiny-btn edit-section-name" data-heading="metrics" title="Rename section" aria-label="Rename symptoms section">✎</button>
             </div>
           </div>
           <div class="behavior-list" id="customBehaviorList" style="margin-top:10px"></div>
-        </section>
-
-        <section class="card settings-card">
-          <h2>Section names</h2>
-          <p>These names change everywhere in the app without changing any saved entries.</p>
-          <div class="settings-fields">
-            <label class="form-label">Morning routine
-              <input class="field-input heading-setting" data-heading="routine" maxlength="40">
-            </label>
-            <label class="form-label">Daily goals
-              <input class="field-input heading-setting" data-heading="goals" maxlength="40">
-            </label>
-            <label class="form-label">Symptoms and check-ins
-              <input class="field-input heading-setting" data-heading="metrics" maxlength="40">
-            </label>
-            <label class="form-label">Mood card
-              <input class="field-input heading-setting" data-heading="mood" maxlength="40">
-            </label>
-            <label class="form-label">Notes card
-              <input class="field-input heading-setting" data-heading="notes" maxlength="40">
-            </label>
-            <label class="form-label">Reminder card
-              <input class="field-input heading-setting" data-heading="reminder" maxlength="40">
-            </label>
+          <h3 style="font-family:var(--font-display);margin:22px 0 10px">Other card names</h3>
+          <div class="behavior-list">
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingMoodName">How’s your mood?</strong><small>Mood card</small></div>
+              <button class="tiny-btn edit-section-name" data-heading="mood" title="Rename card" aria-label="Rename mood card">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingNotesName">Notes for today</strong><small>Notes card</small></div>
+              <button class="tiny-btn edit-section-name" data-heading="notes" title="Rename card" aria-label="Rename notes card">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingReminderName">A gentle reminder</strong><small>Reminder card</small></div>
+              <button class="tiny-btn edit-section-name" data-heading="reminder" title="Rename card" aria-label="Rename reminder card">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingReminderText">Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.</strong><small>Reminder message</small></div>
+              <button class="tiny-btn edit-section-name" data-copy="reminderText" title="Edit reminder message" aria-label="Edit reminder message">✎</button>
+            </div>
           </div>
         </section>
 
@@ -545,6 +610,7 @@
 
   <nav class="nav" aria-label="Main navigation">
     <button class="nav-btn active" data-panel="todayPanel">Today</button>
+    <button class="nav-btn" data-panel="calendarPanel">Calendar</button>
     <button class="nav-btn" data-panel="historyPanel">History</button>
     <button class="nav-btn" data-panel="customizePanel">Customize</button>
     <button class="nav-btn" data-panel="settingsPanel">Settings</button>
@@ -580,6 +646,40 @@
     </form>
   </dialog>
 
+  <dialog id="calendarDayDialog">
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow" style="color:var(--coral)">Calendar day</div>
+        <h2 id="calendarDayTitle">Day details</h2>
+      </div>
+      <button type="button" class="icon-btn close-calendar-dialog" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Note
+        <textarea class="notes calendar-note" id="calendarDayNote" maxlength="1000" placeholder="A reminder, detail, or anything to remember…"></textarea>
+      </label>
+
+      <div style="margin-top:18px">
+        <strong>Appointments</strong>
+        <div class="appointment-list" id="appointmentList"></div>
+        <form class="appointment-form" id="appointmentForm">
+          <label class="form-label">Time
+            <input class="field-input" id="appointmentTime" type="time">
+          </label>
+          <label class="form-label">Appointment
+            <input class="field-input" id="appointmentTitle" required maxlength="100" placeholder="e.g. Follow-up visit">
+          </label>
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn secondary close-calendar-dialog">Done</button>
+        <button type="button" class="btn" id="openDailyForm">Open daily check-in</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="sectionDialog">
     <form id="sectionForm">
       <div class="modal-head">
@@ -602,6 +702,25 @@
         <div class="modal-actions">
           <button type="button" class="btn secondary close-section-dialog">Cancel</button>
           <button type="submit" class="btn">Add section</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="renameSectionDialog">
+    <form id="renameSectionForm">
+      <div class="modal-head">
+        <h2 id="renameSectionTitle">Rename section</h2>
+        <button type="button" class="icon-btn close-rename-dialog" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label"><span id="renameFieldLabel">Name</span>
+          <input class="field-input" id="renameSectionInput" required maxlength="40">
+          <textarea class="notes hidden" id="renameCopyInput" maxlength="240"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary close-rename-dialog">Cancel</button>
+          <button type="submit" class="btn">Save name</button>
         </div>
       </div>
     </form>
@@ -644,6 +763,7 @@
           notes: "Notes for today",
           reminder: "A gentle reminder"
         },
+        reminderText: "Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.",
         theme: {
           primary: "#1f5962",
           accent: "#e88373",
@@ -656,16 +776,22 @@
         sectionBehaviors: { routine: "checklist", goals: "checklist", metrics: "flexible" },
         customSections: []
       },
-      logs: {}
+      logs: {},
+      calendar: {}
     };
 
     let state = loadState();
     let selectedDate = todayKey();
+    let calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let calendarEditingDate = null;
     let deferredInstallPrompt = null;
     let editing = { section: null, id: null };
+    let renaming = { heading: null, sectionId: null, copy: null };
 
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
     function normalizeState(saved) {
+      const customSections = Array.isArray(saved.config?.customSections) ? clone(saved.config.customSections) : [];
+      customSections.forEach(ensureCounterItem);
       return {
         config: {
           ...clone(defaults.config),
@@ -673,9 +799,10 @@
           headings: { ...defaults.config.headings, ...(saved.config?.headings || {}) },
           theme: { ...defaults.config.theme, ...(saved.config?.theme || {}) },
           sectionBehaviors: { ...defaults.config.sectionBehaviors, ...(saved.config?.sectionBehaviors || {}) },
-          customSections: Array.isArray(saved.config?.customSections) ? saved.config.customSections : []
+          customSections
         },
-        logs: saved.logs || {}
+        logs: saved.logs || {},
+        calendar: saved.calendar || {}
       };
     }
     function loadState() {
@@ -715,6 +842,13 @@
       state.logs[key].counters ||= {};
       return state.logs[key];
     }
+    function getCalendarDay(key = calendarEditingDate) {
+      if (!state.calendar) state.calendar = {};
+      if (!state.calendar[key]) state.calendar[key] = { note: "", appointments: [] };
+      state.calendar[key].appointments ||= [];
+      state.calendar[key].note ||= "";
+      return state.calendar[key];
+    }
     function getCustomSection(id) { return state.config.customSections.find(section => section.id === id); }
     function getSectionItems(section) {
       return ["routine", "goals", "metrics"].includes(section) ? state.config[section] : (getCustomSection(section)?.items || []);
@@ -733,6 +867,18 @@
       return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
     }
     function uid(prefix) { return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`; }
+    function ensureCounterItem(section) {
+      if (section?.behavior !== "counter") return;
+      if (!Array.isArray(section.items)) section.items = [];
+      if (!section.items.length) {
+        section.items.push({
+          id: `counter_${section.id}`,
+          name: section.name || "Count",
+          detail: "",
+          auto: true
+        });
+      }
+    }
     function toast(message) {
       const el = document.getElementById("toast");
       el.textContent = message;
@@ -779,7 +925,9 @@
         routineHeading: h.routine, goalsHeading: h.goals, metricsHeading: h.metrics,
         moodHeading: h.mood, notesHeading: h.notes, reminderHeading: h.reminder,
         manageRoutineHeading: h.routine, manageGoalsHeading: h.goals, manageMetricsHeading: h.metrics,
-        behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics
+        behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics,
+        settingMoodName: h.mood, settingNotesName: h.notes, settingReminderName: h.reminder,
+        reminderMessage: state.config.reminderText, settingReminderText: state.config.reminderText
       };
       Object.entries(pairs).forEach(([id, value]) => {
         const el = document.getElementById(id);
@@ -788,9 +936,6 @@
     }
     function renderSettings() {
       renderHeadings();
-      document.querySelectorAll(".heading-setting").forEach(input => {
-        input.value = state.config.headings[input.dataset.heading] || "";
-      });
       document.querySelectorAll(".theme-setting").forEach(input => {
         input.value = state.config.theme[input.dataset.theme];
       });
@@ -800,7 +945,7 @@
       document.getElementById("customBehaviorList").innerHTML = state.config.customSections.map(section => `
         <div class="behavior-row">
           <div>
-            <input class="field-input custom-section-name" data-section-id="${section.id}" value="${escapeHtml(section.name)}" maxlength="40" aria-label="Custom section name">
+            <strong>${escapeHtml(section.name)}</strong>
             <small>Custom section · ${section.items.length} item${section.items.length === 1 ? "" : "s"}</small>
           </div>
           <select class="field-select custom-behavior" data-section-id="${section.id}" aria-label="Section behaviour">
@@ -808,7 +953,10 @@
             <option value="slider" ${section.behavior === "slider" ? "selected" : ""}>0–10 sliders</option>
             <option value="counter" ${section.behavior === "counter" ? "selected" : ""}>Manual counters</option>
           </select>
-          <button class="tiny-btn danger delete-section" data-section-id="${section.id}" title="Delete section">×</button>
+          <div class="row-actions">
+            <button class="tiny-btn edit-section-name" data-section-id="${section.id}" title="Rename section" aria-label="Rename ${escapeHtml(section.name)}">✎</button>
+            <button class="tiny-btn danger delete-section" data-section-id="${section.id}" title="Delete section" aria-label="Delete ${escapeHtml(section.name)}">×</button>
+          </div>
         </div>`).join("") || `<div class="empty">No custom sections yet.</div>`;
     }
 
@@ -865,11 +1013,13 @@
       } else {
         container.innerHTML = items.map(item => `
           <div class="counter-row">
-            <div class="item-copy"><strong>${escapeHtml(item.name)}</strong>${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}</div>
-            <div class="counter-control">
-              <button class="counter-btn" data-id="${item.id}" data-delta="-1" aria-label="Decrease ${escapeHtml(item.name)}">−</button>
+            <div class="counter-summary">
+              <div class="item-copy"><strong>${escapeHtml(item.name)}</strong>${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}</div>
               <span class="counter-value" id="counter_${item.id}">${Number(log.counters[item.id] || 0)}</span>
-              <button class="counter-btn" data-id="${item.id}" data-delta="1" aria-label="Increase ${escapeHtml(item.name)}">+</button>
+            </div>
+            <div class="counter-control">
+              <button class="counter-btn counter-minus" data-id="${item.id}" data-delta="-1" aria-label="Decrease ${escapeHtml(item.name)}">−</button>
+              <button class="counter-btn counter-plus" data-id="${item.id}" data-delta="1" aria-label="Increase ${escapeHtml(item.name)}">+</button>
             </div>
           </div>`).join("");
         if (count) count.textContent = `${items.reduce((sum, item) => sum + Number(log.counters[item.id] || 0), 0)} total`;
@@ -946,13 +1096,85 @@
       document.getElementById("progressOrb").style.setProperty("--progress", `${percent * 3.6}deg`);
     }
 
+    function logHasEntry(log) {
+      return Boolean(log && (
+        log.mood || log.notes ||
+        Object.values(log.checks || {}).some(Boolean) ||
+        Object.values(log.metrics || {}).some(value => value !== "") ||
+        Object.values(log.counters || {}).some(value => Number(value) > 0)
+      ));
+    }
+
+    function calendarHasEntry(key) {
+      const day = state.calendar?.[key];
+      return logHasEntry(state.logs[key]) || Boolean(day && (day.note?.trim() || day.appointments?.length));
+    }
+
+    function formatAppointmentTime(value) {
+      if (!value) return "Any time";
+      const [hours, minutes] = value.split(":").map(Number);
+      return new Date(2000, 0, 1, hours, minutes).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    function renderAppointments() {
+      const day = getCalendarDay();
+      document.getElementById("appointmentList").innerHTML = day.appointments.length
+        ? day.appointments
+          .slice()
+          .sort((a, b) => (a.time || "99:99").localeCompare(b.time || "99:99"))
+          .map(appointment => `
+            <div class="appointment-row">
+              <span class="appointment-time">${escapeHtml(formatAppointmentTime(appointment.time))}</span>
+              <strong>${escapeHtml(appointment.title)}</strong>
+              <button class="tiny-btn danger delete-appointment" data-id="${appointment.id}" aria-label="Remove ${escapeHtml(appointment.title)}">×</button>
+            </div>`).join("")
+        : `<div class="appointment-empty">No appointments yet.</div>`;
+    }
+
+    function openCalendarDay(key) {
+      calendarEditingDate = key;
+      const date = dateFromKey(key);
+      const day = getCalendarDay(key);
+      document.getElementById("calendarDayTitle").textContent = date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+      document.getElementById("calendarDayNote").value = day.note || "";
+      document.getElementById("appointmentTime").value = "";
+      document.getElementById("appointmentTitle").value = "";
+      const dailyButton = document.getElementById("openDailyForm");
+      dailyButton.disabled = key > todayKey();
+      dailyButton.textContent = key > todayKey() ? "Daily check-in available that day" : "Open daily check-in";
+      renderAppointments();
+      document.getElementById("calendarDayDialog").showModal();
+    }
+
+    function renderCalendar() {
+      const year = calendarCursor.getFullYear();
+      const month = calendarCursor.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const mondayOffset = (firstDay.getDay() + 6) % 7;
+      const today = todayKey();
+      document.getElementById("calendarMonth").textContent = firstDay.toLocaleDateString([], { month: "long", year: "numeric" });
+      document.getElementById("nextMonth").disabled = false;
+
+      const cells = Array.from({ length: mondayOffset }, () => `<span class="calendar-blank" aria-hidden="true"></span>`);
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = localDateKey(new Date(year, month, day, 12));
+        const hasEntry = calendarHasEntry(key);
+        const classes = [
+          "calendar-day",
+          key === today ? "today" : "",
+          key === selectedDate ? "selected" : "",
+          hasEntry ? "has-entry" : ""
+        ].filter(Boolean).join(" ");
+        const label = new Date(year, month, day, 12).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        cells.push(`<button class="${classes}" data-date="${key}" aria-label="${escapeHtml(label)}${hasEntry ? ", saved activity" : ""}">${day}</button>`);
+      }
+      document.getElementById("calendarGrid").innerHTML = cells.join("");
+    }
+
     function renderHistory() {
       const grid = document.getElementById("historyGrid");
-      const keys = Object.keys(state.logs).filter(key => {
-        const log = state.logs[key];
-        return log.mood || log.notes || Object.keys(log.checks || {}).some(k => log.checks[k]) ||
-          Object.keys(log.metrics || {}).length || Object.values(log.counters || {}).some(value => Number(value) > 0);
-      }).sort().reverse();
+      const keys = Object.keys(state.logs).filter(key => logHasEntry(state.logs[key])).sort().reverse();
       if (!keys.length) {
         grid.innerHTML = `<div class="no-history" style="grid-column:1/-1"><div style="font-size:36px;margin-bottom:10px">🌱</div><strong>No entries yet</strong><br><small>Your first check-in will appear here.</small></div>`;
         return;
@@ -1049,8 +1271,13 @@
       }
       if (event.target.matches(".custom-behavior")) {
         const section = getCustomSection(event.target.dataset.sectionId);
-        if (section) section.behavior = event.target.value;
+        if (section) {
+          section.behavior = event.target.value;
+          ensureCounterItem(section);
+        }
         saveState("Section behaviour updated");
+        renderSettings();
+        renderManage();
         renderToday();
       }
     });
@@ -1060,12 +1287,6 @@
         getLog().metrics[event.target.dataset.id] = event.target.value;
         saveState();
         updateProgress();
-      }
-      if (event.target.matches(".custom-section-name")) {
-        const section = getCustomSection(event.target.dataset.sectionId);
-        if (section && event.target.value.trim()) section.name = event.target.value.trim();
-        saveState();
-        renderToday();
       }
     });
     document.getElementById("dailyNotes").addEventListener("input", event => {
@@ -1090,6 +1311,11 @@
       document.querySelectorAll(".nav-btn").forEach(x => x.classList.toggle("active", x === btn));
       document.querySelectorAll(".panel").forEach(x => x.classList.toggle("active", x.id === btn.dataset.panel));
       if (btn.dataset.panel === "historyPanel") renderHistory();
+      if (btn.dataset.panel === "calendarPanel") {
+        const date = dateFromKey(selectedDate);
+        calendarCursor = new Date(date.getFullYear(), date.getMonth(), 1);
+        renderCalendar();
+      }
       if (btn.dataset.panel === "customizePanel") renderManage();
       if (btn.dataset.panel === "settingsPanel") renderSettings();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1098,6 +1324,57 @@
       const card = event.target.closest(".day-card");
       if (!card) return;
       selectedDate = card.dataset.date;
+      document.querySelector('[data-panel="todayPanel"]').click();
+      renderToday();
+    });
+    document.getElementById("calendarGrid").addEventListener("click", event => {
+      const day = event.target.closest(".calendar-day");
+      if (!day || day.disabled) return;
+      openCalendarDay(day.dataset.date);
+    });
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 1);
+      renderCalendar();
+    });
+    document.querySelectorAll(".close-calendar-dialog").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("calendarDayDialog").close();
+      renderCalendar();
+    }));
+    document.getElementById("calendarDayNote").addEventListener("input", event => {
+      getCalendarDay().note = event.target.value;
+      saveState();
+    });
+    document.getElementById("appointmentForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const title = document.getElementById("appointmentTitle").value.trim();
+      if (!title) return;
+      getCalendarDay().appointments.push({
+        id: uid("appointment"),
+        title,
+        time: document.getElementById("appointmentTime").value
+      });
+      saveState("Appointment added");
+      document.getElementById("appointmentTitle").value = "";
+      document.getElementById("appointmentTime").value = "";
+      renderAppointments();
+      renderCalendar();
+    });
+    document.getElementById("appointmentList").addEventListener("click", event => {
+      const remove = event.target.closest(".delete-appointment");
+      if (!remove) return;
+      const day = getCalendarDay();
+      day.appointments = day.appointments.filter(appointment => appointment.id !== remove.dataset.id);
+      saveState("Appointment removed");
+      renderAppointments();
+      renderCalendar();
+    });
+    document.getElementById("openDailyForm").addEventListener("click", () => {
+      selectedDate = calendarEditingDate;
+      document.getElementById("calendarDayDialog").close();
       document.querySelector('[data-panel="todayPanel"]').click();
       renderToday();
     });
@@ -1122,7 +1399,9 @@
           if (["routine","goals","metrics"].includes(del.dataset.section)) {
             state.config[del.dataset.section] = items.filter(x => x.id !== del.dataset.id);
           } else {
-            getCustomSection(del.dataset.section).items = items.filter(x => x.id !== del.dataset.id);
+            const section = getCustomSection(del.dataset.section);
+            section.items = items.filter(x => x.id !== del.dataset.id);
+            ensureCounterItem(section);
           }
           saveState("Field removed");
           renderManage();
@@ -1139,6 +1418,25 @@
           renderManage();
           renderToday();
         }
+      }
+      const rename = event.target.closest(".edit-section-name");
+      if (rename) {
+        renaming = { heading: rename.dataset.heading || null, sectionId: rename.dataset.sectionId || null, copy: rename.dataset.copy || null };
+        const currentName = renaming.copy
+          ? state.config[renaming.copy]
+          : renaming.heading
+          ? state.config.headings[renaming.heading]
+          : getCustomSection(renaming.sectionId)?.name;
+        document.getElementById("renameSectionTitle").textContent = renaming.copy
+          ? "Edit reminder message"
+          : renaming.heading && ["mood","notes","reminder"].includes(renaming.heading) ? "Rename card" : "Rename section";
+        document.getElementById("renameFieldLabel").textContent = renaming.copy ? "Message" : "Name";
+        document.getElementById("renameSectionInput").value = currentName || "";
+        document.getElementById("renameCopyInput").value = currentName || "";
+        document.getElementById("renameSectionInput").classList.toggle("hidden", Boolean(renaming.copy));
+        document.getElementById("renameCopyInput").classList.toggle("hidden", !renaming.copy);
+        document.getElementById("renameSectionDialog").showModal();
+        setTimeout(() => (renaming.copy ? document.getElementById("renameCopyInput") : document.getElementById("renameSectionInput")).focus(), 50);
       }
     });
     document.getElementById("fieldForm").addEventListener("submit", event => {
@@ -1218,12 +1516,6 @@
         renderToday(); renderManage();
       }
     });
-    document.querySelectorAll(".heading-setting").forEach(input => input.addEventListener("input", event => {
-      const value = event.target.value.trim();
-      state.config.headings[event.target.dataset.heading] = value || defaults.config.headings[event.target.dataset.heading];
-      saveState();
-      renderHeadings();
-    }));
     document.querySelectorAll(".theme-setting").forEach(input => input.addEventListener("input", event => {
       state.config.theme[event.target.dataset.theme] = event.target.value;
       saveState();
@@ -1254,14 +1546,39 @@
       event.preventDefault();
       const name = document.getElementById("sectionName").value.trim();
       if (!name) return;
-      state.config.customSections.push({
+      const section = {
         id: uid("section"),
         name,
         behavior: document.getElementById("sectionBehavior").value,
         items: []
-      });
+      };
+      ensureCounterItem(section);
+      state.config.customSections.push(section);
       saveState("Section added");
       document.getElementById("sectionDialog").close();
+      renderSettings();
+      renderManage();
+      renderToday();
+    });
+    document.querySelectorAll(".close-rename-dialog").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("renameSectionDialog").close();
+    }));
+    document.getElementById("renameSectionForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const name = (renaming.copy ? document.getElementById("renameCopyInput") : document.getElementById("renameSectionInput")).value.trim();
+      if (!name) return;
+      if (renaming.copy) state.config[renaming.copy] = name;
+      else if (renaming.heading) state.config.headings[renaming.heading] = name;
+      else {
+        const section = getCustomSection(renaming.sectionId);
+        if (section) {
+          section.name = name;
+          const automaticCounter = section.items?.find(item => item.auto);
+          if (automaticCounter) automaticCounter.name = name;
+        }
+      }
+      saveState("Name updated");
+      document.getElementById("renameSectionDialog").close();
       renderSettings();
       renderManage();
       renderToday();
