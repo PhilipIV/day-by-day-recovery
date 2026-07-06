@@ -22,6 +22,8 @@
       --line: #dde6e2;
       --shadow: 0 12px 34px rgba(31, 72, 78, .10);
       --radius: 22px;
+      --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-display: Georgia, serif;
     }
 
     * { box-sizing: border-box; }
@@ -34,7 +36,7 @@
         radial-gradient(circle at 90% 5%, rgba(232, 131, 115, .13), transparent 28rem),
         radial-gradient(circle at 0% 35%, rgba(112, 169, 154, .12), transparent 26rem),
         var(--cream);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: var(--font-body);
       -webkit-font-smoothing: antialiased;
     }
 
@@ -51,7 +53,7 @@
       color: white; background: var(--teal); box-shadow: 0 8px 20px rgba(31, 89, 98, .2);
     }
     .brand-mark svg { width: 24px; }
-    .brand-copy strong { display: block; font-family: Georgia, serif; font-size: 20px; letter-spacing: -.2px; }
+    .brand-copy strong { display: block; font-family: var(--font-display); font-size: 20px; letter-spacing: -.2px; }
     .brand-copy span { color: var(--muted); font-size: 12px; }
 
     .icon-btn {
@@ -71,7 +73,7 @@
       border: 42px solid rgba(255,255,255,.055); border-radius: 50%;
     }
     .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; opacity: .72; }
-    h1 { margin: 7px 0 7px; font-family: Georgia, serif; font-size: clamp(30px, 6vw, 50px); line-height: 1; font-weight: 500; }
+    h1 { margin: 7px 0 7px; font-family: var(--font-display); font-size: clamp(30px, 6vw, 50px); line-height: 1; font-weight: 500; }
     .hero p { margin: 0; color: rgba(255,255,255,.74); }
     .progress-orb {
       --progress: 0deg; width: 112px; height: 112px; border-radius: 50%; display: grid; place-items: center;
@@ -98,7 +100,7 @@
     .section-icon { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--mint); color: var(--teal); }
     .section-icon.coral { background: var(--coral-soft); color: #a84e43; }
     .section-icon svg { width: 18px; height: 18px; }
-    h2 { margin: 0; font-family: Georgia, serif; font-size: 21px; font-weight: 600; }
+    h2 { margin: 0; font-family: var(--font-display); font-size: 21px; font-weight: 600; }
     .count { padding: 4px 9px; background: var(--mint-soft); color: var(--teal); border-radius: 99px; font-size: 12px; font-weight: 800; }
     .items { padding: 0 12px 12px; }
     .empty { padding: 26px 16px; text-align: center; color: var(--muted); font-size: 14px; }
@@ -124,7 +126,7 @@
     .metric { padding: 14px 10px 18px; border-bottom: 1px solid var(--line); }
     .metric:last-child { border-bottom: 0; }
     .metric-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; font-size: 14px; font-weight: 750; }
-    .metric-label output { font-family: Georgia, serif; color: var(--teal); font-size: 22px; font-weight: bold; }
+    .metric-label output { font-family: var(--font-display); color: var(--teal); font-size: 22px; font-weight: bold; }
     input[type="range"] { width: 100%; accent-color: var(--coral); }
     .scale { display: flex; justify-content: space-between; color: #8a9b99; font-size: 10px; margin-top: 4px; }
     .field-input, .field-select, .notes {
@@ -135,7 +137,7 @@
     .notes { min-height: 100px; resize: vertical; }
 
     .side-card { padding: 20px; }
-    .side-card h3 { margin: 0 0 7px; font-family: Georgia, serif; font-size: 20px; }
+    .side-card h3 { margin: 0 0 7px; font-family: var(--font-display); font-size: 20px; }
     .side-card p { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0 0 16px; }
     .mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
     .mood-btn { border: 1px solid var(--line); background: white; border-radius: 12px; height: 44px; font-size: 21px; cursor: pointer; }
@@ -165,7 +167,7 @@
     .day-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 17px; cursor: pointer; transition: .2s; }
     .day-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
     .day-card header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
-    .day-card header strong { font-family: Georgia, serif; }
+    .day-card header strong { font-family: var(--font-display); }
     .day-card .mood { font-size: 22px; }
     .mini-bar { height: 7px; background: var(--mint); border-radius: 99px; overflow: hidden; }
     .mini-bar span { display: block; height: 100%; background: var(--coral); border-radius: inherit; }
@@ -194,6 +196,25 @@
     .data-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
     .privacy-note { grid-column: 1 / -1; background: var(--teal); color: white; padding: 20px; border-radius: var(--radius); }
     .privacy-note p { color: rgba(255,255,255,.75); font-size: 13px; margin: 7px 0 0; line-height: 1.5; }
+    .settings-card { padding: 22px; }
+    .settings-card > p { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 7px 0 18px; }
+    .settings-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .settings-fields .wide { grid-column: 1 / -1; }
+    .color-field { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
+    .color-field input[type="color"] {
+      width: 44px; height: 42px; padding: 3px; border: 1px solid var(--line); border-radius: 12px;
+      background: white; cursor: pointer;
+    }
+    .color-field span { font-size: 13px; font-weight: 750; }
+    .color-field small { display: block; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin: 4px 0 20px; }
+    .preset-btn {
+      border: 1px solid var(--line); background: var(--paper); border-radius: 14px; padding: 10px 7px;
+      cursor: pointer; font-size: 12px; font-weight: 750;
+    }
+    .preset-btn:hover { border-color: var(--teal); }
+    .swatches { display: flex; justify-content: center; gap: 4px; margin-bottom: 7px; }
+    .swatches i { width: 15px; height: 15px; border-radius: 50%; display: block; }
 
     dialog {
       width: min(460px, calc(100% - 28px)); border: 0; border-radius: 24px; padding: 0; color: var(--ink);
@@ -231,6 +252,9 @@
       .sidebar { grid-template-columns: 1fr; }
       .data-actions { grid-template-columns: 1fr; }
       .nav-btn { padding: 10px 5px; font-size: 12px; }
+      .settings-fields { grid-template-columns: 1fr; }
+      .settings-fields .wide { grid-column: auto; }
+      .preset-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -283,7 +307,7 @@
                 <div class="section-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="9"/></svg>
                 </div>
-                <h2>Morning routine</h2>
+                <h2 id="routineHeading">Morning routine</h2>
               </div>
               <span class="count" id="routineCount">0 of 0</span>
             </div>
@@ -296,7 +320,7 @@
                 <div class="section-icon coral">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0-9-9"/><path d="m3 21 4-1-3-3"/><path d="m9 12 2 2 4-5"/></svg>
                 </div>
-                <h2>Daily goals</h2>
+                <h2 id="goalsHeading">Daily goals</h2>
               </div>
               <span class="count" id="goalCount">0 of 0</span>
             </div>
@@ -309,7 +333,7 @@
                 <div class="section-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M6 16l4-5 3 3 5-8"/></svg>
                 </div>
-                <h2>How you're feeling</h2>
+                <h2 id="metricsHeading">How you're feeling</h2>
               </div>
             </div>
             <div class="items" id="metricItems"></div>
@@ -318,7 +342,7 @@
 
         <aside class="stack sidebar">
           <section class="card side-card">
-            <h3>How’s your mood?</h3>
+            <h3 id="moodHeading">How’s your mood?</h3>
             <p>No right answer—just a quick check-in.</p>
             <div class="mood-grid" id="moodGrid">
               <button class="mood-btn" data-mood="1" aria-label="Very difficult">😞</button>
@@ -331,13 +355,13 @@
           </section>
 
           <section class="card side-card">
-            <h3>Notes for today</h3>
+            <h3 id="notesHeading">Notes for today</h3>
             <p>Anything you want to remember or discuss.</p>
             <textarea class="notes" id="dailyNotes" placeholder="A win, a concern, a question…"></textarea>
           </section>
 
           <section class="card side-card tip">
-            <h3>A gentle reminder</h3>
+            <h3 id="reminderHeading">A gentle reminder</h3>
             <p>This tracker supports—not replaces—medical care. Seek urgent help for severe bleeding, chest pain, trouble breathing, seizures, or thoughts of harming yourself or your baby.</p>
           </section>
         </aside>
@@ -361,15 +385,15 @@
       </div>
       <div class="settings-layout">
         <section class="card manage-card">
-          <div class="manage-head"><h2>Morning routine</h2><button class="btn secondary add-field" data-section="routine">+ Add</button></div>
+          <div class="manage-head"><h2 id="manageRoutineHeading">Morning routine</h2><button class="btn secondary add-field" data-section="routine">+ Add</button></div>
           <div class="manage-list" id="manageRoutine"></div>
         </section>
         <section class="card manage-card">
-          <div class="manage-head"><h2>Daily goals</h2><button class="btn secondary add-field" data-section="goals">+ Add</button></div>
+          <div class="manage-head"><h2 id="manageGoalsHeading">Daily goals</h2><button class="btn secondary add-field" data-section="goals">+ Add</button></div>
           <div class="manage-list" id="manageGoals"></div>
         </section>
         <section class="card manage-card">
-          <div class="manage-head"><h2>Symptoms & check-ins</h2><button class="btn secondary add-field" data-section="metrics">+ Add</button></div>
+          <div class="manage-head"><h2 id="manageMetricsHeading">Symptoms & check-ins</h2><button class="btn secondary add-field" data-section="metrics">+ Add</button></div>
           <div class="manage-list" id="manageMetrics"></div>
         </section>
         <section class="card manage-card">
@@ -389,12 +413,86 @@
         </section>
       </div>
     </section>
+
+    <section class="panel" id="settingsPanel">
+      <div class="page-intro">
+        <div class="eyebrow" style="color:var(--coral)">Your space</div>
+        <h1>Settings</h1>
+        <p>Rename the main sections and choose the colours and typography that feel best to you.</p>
+      </div>
+      <div class="settings-layout">
+        <section class="card settings-card">
+          <h2>Section names</h2>
+          <p>These names change everywhere in the app without changing any saved entries.</p>
+          <div class="settings-fields">
+            <label class="form-label">Morning routine
+              <input class="field-input heading-setting" data-heading="routine" maxlength="40">
+            </label>
+            <label class="form-label">Daily goals
+              <input class="field-input heading-setting" data-heading="goals" maxlength="40">
+            </label>
+            <label class="form-label">Symptoms and check-ins
+              <input class="field-input heading-setting" data-heading="metrics" maxlength="40">
+            </label>
+            <label class="form-label">Mood card
+              <input class="field-input heading-setting" data-heading="mood" maxlength="40">
+            </label>
+            <label class="form-label">Notes card
+              <input class="field-input heading-setting" data-heading="notes" maxlength="40">
+            </label>
+            <label class="form-label">Reminder card
+              <input class="field-input heading-setting" data-heading="reminder" maxlength="40">
+            </label>
+          </div>
+        </section>
+
+        <section class="card settings-card">
+          <h2>Look and feel</h2>
+          <p>Start with a palette, then fine-tune any colour below.</p>
+          <div class="preset-grid">
+            <button class="preset-btn" data-preset="calm"><span class="swatches"><i style="background:#1f5962"></i><i style="background:#e88373"></i><i style="background:#fbf8f2"></i></span>Calm</button>
+            <button class="preset-btn" data-preset="rose"><span class="swatches"><i style="background:#714552"></i><i style="background:#d9898f"></i><i style="background:#fff7f5"></i></span>Rose</button>
+            <button class="preset-btn" data-preset="lavender"><span class="swatches"><i style="background:#575174"></i><i style="background:#aa84b8"></i><i style="background:#f8f6fb"></i></span>Lavender</button>
+            <button class="preset-btn" data-preset="ocean"><span class="swatches"><i style="background:#24506b"></i><i style="background:#e3a65f"></i><i style="background:#f5f9fa"></i></span>Ocean</button>
+          </div>
+          <div class="settings-fields">
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="primary"><span>Primary<small>Headers and buttons</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="accent"><span>Accent<small>Progress and highlights</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="background"><span>Background<small>Page colour</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="surface"><span>Cards<small>Card colour</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="text"><span>Text<small>Main text colour</small></span></label>
+            <label class="form-label">Body font
+              <select class="field-select theme-setting" data-theme="fontBody">
+                <option value="system">Clean & modern</option>
+                <option value="rounded">Soft & rounded</option>
+                <option value="serif">Classic serif</option>
+                <option value="mono">Simple mono</option>
+              </select>
+            </label>
+            <label class="form-label wide">Heading font
+              <select class="field-select theme-setting" data-theme="fontDisplay">
+                <option value="serif">Classic serif</option>
+                <option value="system">Clean & modern</option>
+                <option value="rounded">Soft & rounded</option>
+                <option value="mono">Simple mono</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn secondary" id="resetAppearance" style="margin-top:18px">Reset appearance</button>
+        </section>
+        <section class="privacy-note">
+          <strong>Settings are private too</strong>
+          <p>Your names, colours, and fonts are stored only on this device and are included in downloaded backups.</p>
+        </section>
+      </div>
+    </section>
   </main>
 
   <nav class="nav" aria-label="Main navigation">
     <button class="nav-btn active" data-panel="todayPanel">Today</button>
     <button class="nav-btn" data-panel="historyPanel">History</button>
     <button class="nav-btn" data-panel="customizePanel">Customize</button>
+    <button class="nav-btn" data-panel="settingsPanel">Settings</button>
   </nav>
 
   <dialog id="fieldDialog">
@@ -454,7 +552,24 @@
           { id: "m_aches", name: "Body aches", type: "scale" },
           { id: "m_hydration", name: "Hydration okay?", type: "yesno" },
           { id: "m_motrin", name: "Needed Motrin?", type: "yesno" }
-        ]
+        ],
+        headings: {
+          routine: "Morning routine",
+          goals: "Daily goals",
+          metrics: "How you're feeling",
+          mood: "How’s your mood?",
+          notes: "Notes for today",
+          reminder: "A gentle reminder"
+        },
+        theme: {
+          primary: "#1f5962",
+          accent: "#e88373",
+          background: "#fbf8f2",
+          surface: "#fffefa",
+          text: "#18343b",
+          fontBody: "system",
+          fontDisplay: "serif"
+        }
       },
       logs: {}
     };
@@ -468,7 +583,17 @@
     function loadState() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (saved?.config && saved?.logs) return saved;
+        if (saved?.config && saved?.logs) {
+          return {
+            config: {
+              ...clone(defaults.config),
+              ...saved.config,
+              headings: { ...defaults.config.headings, ...(saved.config.headings || {}) },
+              theme: { ...defaults.config.theme, ...(saved.config.theme || {}) }
+            },
+            logs: saved.logs
+          };
+        }
       } catch (_) {}
       return clone(defaults);
     }
@@ -511,7 +636,61 @@
       toast.timer = setTimeout(() => el.classList.remove("show"), 2200);
     }
 
+    const fontStacks = {
+      system: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      rounded: '"Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif',
+      serif: 'Georgia, "Times New Roman", serif',
+      mono: '"SFMono-Regular", Consolas, "Liberation Mono", monospace'
+    };
+    const presets = {
+      calm: { primary:"#1f5962", accent:"#e88373", background:"#fbf8f2", surface:"#fffefa", text:"#18343b" },
+      rose: { primary:"#714552", accent:"#d9898f", background:"#fff7f5", surface:"#fffdfb", text:"#402c32" },
+      lavender: { primary:"#575174", accent:"#aa84b8", background:"#f8f6fb", surface:"#fffefe", text:"#353146" },
+      ocean: { primary:"#24506b", accent:"#e3a65f", background:"#f5f9fa", surface:"#ffffff", text:"#203b4b" }
+    };
+    function shadeHex(hex, amount) {
+      const value = parseInt(hex.slice(1), 16);
+      const clamp = n => Math.max(0, Math.min(255, n));
+      const r = clamp((value >> 16) + amount);
+      const g = clamp(((value >> 8) & 255) + amount);
+      const b = clamp((value & 255) + amount);
+      return `#${[r,g,b].map(n => n.toString(16).padStart(2,"0")).join("")}`;
+    }
+    function applyTheme() {
+      const theme = state.config.theme;
+      const root = document.documentElement.style;
+      root.setProperty("--teal", theme.primary);
+      root.setProperty("--teal-dark", shadeHex(theme.primary, -28));
+      root.setProperty("--coral", theme.accent);
+      root.setProperty("--cream", theme.background);
+      root.setProperty("--paper", theme.surface);
+      root.setProperty("--ink", theme.text);
+      root.setProperty("--font-body", fontStacks[theme.fontBody] || fontStacks.system);
+      root.setProperty("--font-display", fontStacks[theme.fontDisplay] || fontStacks.serif);
+    }
+    function renderHeadings() {
+      const h = state.config.headings;
+      const pairs = {
+        routineHeading: h.routine, goalsHeading: h.goals, metricsHeading: h.metrics,
+        moodHeading: h.mood, notesHeading: h.notes, reminderHeading: h.reminder,
+        manageRoutineHeading: h.routine, manageGoalsHeading: h.goals, manageMetricsHeading: h.metrics
+      };
+      Object.entries(pairs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      });
+    }
+    function renderSettings() {
+      document.querySelectorAll(".heading-setting").forEach(input => {
+        input.value = state.config.headings[input.dataset.heading] || "";
+      });
+      document.querySelectorAll(".theme-setting").forEach(input => {
+        input.value = state.config.theme[input.dataset.theme];
+      });
+    }
+
     function renderToday() {
+      renderHeadings();
       const date = dateFromKey(selectedDate);
       const isToday = selectedDate === todayKey();
       document.getElementById("datePrimary").textContent = isToday ? "Today" : date.toLocaleDateString([], { weekday: "long" });
@@ -622,6 +801,7 @@
     }
 
     function renderManage() {
+      renderHeadings();
       renderManageSection("routine", "manageRoutine");
       renderManageSection("goals", "manageGoals");
       renderManageSection("metrics", "manageMetrics");
@@ -698,6 +878,7 @@
       document.querySelectorAll(".panel").forEach(x => x.classList.toggle("active", x.id === btn.dataset.panel));
       if (btn.dataset.panel === "historyPanel") renderHistory();
       if (btn.dataset.panel === "customizePanel") renderManage();
+      if (btn.dataset.panel === "settingsPanel") renderSettings();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     document.getElementById("historyGrid").addEventListener("click", event => {
@@ -790,6 +971,29 @@
         renderToday(); renderManage();
       }
     });
+    document.querySelectorAll(".heading-setting").forEach(input => input.addEventListener("input", event => {
+      const value = event.target.value.trim();
+      state.config.headings[event.target.dataset.heading] = value || defaults.config.headings[event.target.dataset.heading];
+      saveState();
+      renderHeadings();
+    }));
+    document.querySelectorAll(".theme-setting").forEach(input => input.addEventListener("input", event => {
+      state.config.theme[event.target.dataset.theme] = event.target.value;
+      saveState();
+      applyTheme();
+    }));
+    document.querySelectorAll(".preset-btn").forEach(button => button.addEventListener("click", () => {
+      state.config.theme = { ...state.config.theme, ...presets[button.dataset.preset] };
+      saveState("Palette applied");
+      applyTheme();
+      renderSettings();
+    }));
+    document.getElementById("resetAppearance").addEventListener("click", () => {
+      state.config.theme = clone(defaults.config.theme);
+      saveState("Appearance reset");
+      applyTheme();
+      renderSettings();
+    });
 
     window.addEventListener("beforeinstallprompt", event => {
       event.preventDefault();
@@ -809,6 +1013,7 @@
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
+    applyTheme();
     renderToday();
   </script>
 </body>
