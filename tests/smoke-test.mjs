@@ -9,6 +9,11 @@ const serviceWorker = readFileSync(join(siteDir, "sw.js"), "utf8");
 const requiredMarkup = [
   'id="todayPanel"',
   'id="historyPanel"',
+  'id="calendarPanel"',
+  'id="calendarGrid"',
+  'id="calendarDayDialog"',
+  'id="appointmentForm"',
+  'id="calendarDayNote"',
   'id="customizePanel"',
   'id="settingsPanel"',
   'id="addSectionBtn"',
@@ -18,6 +23,9 @@ const requiredMarkup = [
   'ensureCounterItem(section)',
   'id="reminderMessage"',
   'data-copy="reminderText"',
+  'data-panel="calendarPanel"',
+  'function renderCalendar()',
+  'function openCalendarDay(key)',
   'data-panel="settingsPanel"'
 ];
 
