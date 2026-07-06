@@ -1,0 +1,17 @@
+{
+  "name": "Day by Day — Recovery Tracker",
+  "short_name": "Day by Day",
+  "description": "A private, flexible postpartum recovery tracker.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbf8f2",
+  "theme_color": "#1f5962",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
