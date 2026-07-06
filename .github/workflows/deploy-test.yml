@@ -1,0 +1,51 @@
+name: Validate and Deploy Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "test/**"
+      - "tests/**"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Smoke-test candidate
+        run: node tests/smoke-test.mjs test
+
+  deploy-test:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Assemble live and test sites
+        run: |
+          mkdir -p _site/test
+          cp index.html manifest.json icon.svg sw.js _site/
+          cp test/index.html test/manifest.json test/icon.svg test/sw.js _site/test/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy test candidate
+        id: deployment
+        uses: actions/deploy-pages@v4
