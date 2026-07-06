@@ -194,6 +194,40 @@
     .day-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 7px; }
     .no-history { text-align: center; padding: 65px 20px; border: 1px dashed #c9d8d2; border-radius: 22px; color: var(--muted); }
 
+    .calendar-card { padding: 20px; }
+    .calendar-toolbar { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .calendar-toolbar h2 { margin: 0; text-align: center; font-size: 24px; }
+    .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
+    .calendar-weekdays { margin-bottom: 7px; color: var(--muted); font-size: 11px; font-weight: 800; text-align: center; text-transform: uppercase; }
+    .calendar-day, .calendar-blank {
+      min-height: 68px; border-radius: 15px;
+    }
+    .calendar-day {
+      position: relative; display: grid; place-items: center; border: 1px solid var(--line);
+      background: white; color: var(--ink); cursor: pointer; font-weight: 800;
+    }
+    .calendar-day:hover { border-color: var(--teal); background: var(--mint-soft); }
+    .calendar-day.today { box-shadow: inset 0 0 0 2px var(--coral); }
+    .calendar-day.selected { border-color: var(--teal); background: var(--teal); color: white; }
+    .calendar-day.has-entry::after {
+      content: ""; position: absolute; bottom: 8px; width: 7px; height: 7px;
+      border-radius: 50%; background: var(--coral);
+    }
+    .calendar-day.selected.has-entry::after { background: white; }
+    .calendar-day:disabled { opacity: .3; cursor: not-allowed; background: var(--mint-soft); }
+    .calendar-legend { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 16px; color: var(--muted); font-size: 12px; }
+    .calendar-legend-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+    .appointment-list { display: grid; gap: 8px; margin: 14px 0; }
+    .appointment-row {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+      padding: 11px 12px; border-radius: 13px; background: var(--mint-soft);
+    }
+    .appointment-time { min-width: 56px; color: var(--teal); font-size: 12px; font-weight: 850; }
+    .appointment-row strong { font-size: 13px; }
+    .appointment-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 13px; color: var(--muted); font-size: 12px; text-align: center; }
+    .appointment-form { display: grid; grid-template-columns: 125px 1fr auto; gap: 8px; align-items: end; }
+    .calendar-note { min-height: 76px; }
+
     .settings-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
     .manage-card { padding: 20px; }
     .manage-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -282,6 +316,12 @@
       .sidebar { grid-template-columns: 1fr; }
       .data-actions { grid-template-columns: 1fr; }
       .nav-btn { padding: 10px 5px; font-size: 12px; }
+      .calendar-card { padding: 14px 10px; }
+      .calendar-weekdays, .calendar-grid { gap: 4px; }
+      .calendar-day, .calendar-blank { min-height: 47px; border-radius: 11px; }
+      .calendar-day.has-entry::after { bottom: 5px; width: 6px; height: 6px; }
+      .appointment-form { grid-template-columns: 105px 1fr; }
+      .appointment-form .btn { grid-column: 1 / -1; }
       .settings-fields { grid-template-columns: 1fr; }
       .settings-fields .wide { grid-column: auto; }
       .preset-grid { grid-template-columns: 1fr 1fr; }
@@ -411,6 +451,26 @@
         <p>Look back without judgment. Patterns can help you and your care team understand what you need.</p>
       </div>
       <div class="history-grid" id="historyGrid"></div>
+    </section>
+
+    <section class="panel" id="calendarPanel">
+      <div class="page-intro">
+        <div class="eyebrow" style="color:var(--coral)">Day by day</div>
+        <h1>Calendar</h1>
+        <p>See saved activity and tap any day to manage appointments, notes, or its recovery form.</p>
+      </div>
+      <section class="card calendar-card">
+        <div class="calendar-toolbar">
+          <button class="icon-btn" id="prevMonth" aria-label="Previous month">‹</button>
+          <h2 id="calendarMonth"></h2>
+          <button class="icon-btn" id="nextMonth" aria-label="Next month">›</button>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-legend"><span class="calendar-legend-dot"></span> Saved activity</div>
+      </section>
     </section>
 
     <section class="panel" id="customizePanel">
@@ -550,6 +610,7 @@
 
   <nav class="nav" aria-label="Main navigation">
     <button class="nav-btn active" data-panel="todayPanel">Today</button>
+    <button class="nav-btn" data-panel="calendarPanel">Calendar</button>
     <button class="nav-btn" data-panel="historyPanel">History</button>
     <button class="nav-btn" data-panel="customizePanel">Customize</button>
     <button class="nav-btn" data-panel="settingsPanel">Settings</button>
@@ -583,6 +644,40 @@
         </div>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="calendarDayDialog">
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow" style="color:var(--coral)">Calendar day</div>
+        <h2 id="calendarDayTitle">Day details</h2>
+      </div>
+      <button type="button" class="icon-btn close-calendar-dialog" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Note
+        <textarea class="notes calendar-note" id="calendarDayNote" maxlength="1000" placeholder="A reminder, detail, or anything to remember…"></textarea>
+      </label>
+
+      <div style="margin-top:18px">
+        <strong>Appointments</strong>
+        <div class="appointment-list" id="appointmentList"></div>
+        <form class="appointment-form" id="appointmentForm">
+          <label class="form-label">Time
+            <input class="field-input" id="appointmentTime" type="time">
+          </label>
+          <label class="form-label">Appointment
+            <input class="field-input" id="appointmentTitle" required maxlength="100" placeholder="e.g. Follow-up visit">
+          </label>
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn secondary close-calendar-dialog">Done</button>
+        <button type="button" class="btn" id="openDailyForm">Open daily check-in</button>
+      </div>
+    </div>
   </dialog>
 
   <dialog id="sectionDialog">
@@ -681,11 +776,14 @@
         sectionBehaviors: { routine: "checklist", goals: "checklist", metrics: "flexible" },
         customSections: []
       },
-      logs: {}
+      logs: {},
+      calendar: {}
     };
 
     let state = loadState();
     let selectedDate = todayKey();
+    let calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let calendarEditingDate = null;
     let deferredInstallPrompt = null;
     let editing = { section: null, id: null };
     let renaming = { heading: null, sectionId: null, copy: null };
@@ -703,7 +801,8 @@
           sectionBehaviors: { ...defaults.config.sectionBehaviors, ...(saved.config?.sectionBehaviors || {}) },
           customSections
         },
-        logs: saved.logs || {}
+        logs: saved.logs || {},
+        calendar: saved.calendar || {}
       };
     }
     function loadState() {
@@ -742,6 +841,13 @@
       state.logs[key].metrics ||= {};
       state.logs[key].counters ||= {};
       return state.logs[key];
+    }
+    function getCalendarDay(key = calendarEditingDate) {
+      if (!state.calendar) state.calendar = {};
+      if (!state.calendar[key]) state.calendar[key] = { note: "", appointments: [] };
+      state.calendar[key].appointments ||= [];
+      state.calendar[key].note ||= "";
+      return state.calendar[key];
     }
     function getCustomSection(id) { return state.config.customSections.find(section => section.id === id); }
     function getSectionItems(section) {
@@ -990,13 +1096,85 @@
       document.getElementById("progressOrb").style.setProperty("--progress", `${percent * 3.6}deg`);
     }
 
+    function logHasEntry(log) {
+      return Boolean(log && (
+        log.mood || log.notes ||
+        Object.values(log.checks || {}).some(Boolean) ||
+        Object.values(log.metrics || {}).some(value => value !== "") ||
+        Object.values(log.counters || {}).some(value => Number(value) > 0)
+      ));
+    }
+
+    function calendarHasEntry(key) {
+      const day = state.calendar?.[key];
+      return logHasEntry(state.logs[key]) || Boolean(day && (day.note?.trim() || day.appointments?.length));
+    }
+
+    function formatAppointmentTime(value) {
+      if (!value) return "Any time";
+      const [hours, minutes] = value.split(":").map(Number);
+      return new Date(2000, 0, 1, hours, minutes).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    function renderAppointments() {
+      const day = getCalendarDay();
+      document.getElementById("appointmentList").innerHTML = day.appointments.length
+        ? day.appointments
+          .slice()
+          .sort((a, b) => (a.time || "99:99").localeCompare(b.time || "99:99"))
+          .map(appointment => `
+            <div class="appointment-row">
+              <span class="appointment-time">${escapeHtml(formatAppointmentTime(appointment.time))}</span>
+              <strong>${escapeHtml(appointment.title)}</strong>
+              <button class="tiny-btn danger delete-appointment" data-id="${appointment.id}" aria-label="Remove ${escapeHtml(appointment.title)}">×</button>
+            </div>`).join("")
+        : `<div class="appointment-empty">No appointments yet.</div>`;
+    }
+
+    function openCalendarDay(key) {
+      calendarEditingDate = key;
+      const date = dateFromKey(key);
+      const day = getCalendarDay(key);
+      document.getElementById("calendarDayTitle").textContent = date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+      document.getElementById("calendarDayNote").value = day.note || "";
+      document.getElementById("appointmentTime").value = "";
+      document.getElementById("appointmentTitle").value = "";
+      const dailyButton = document.getElementById("openDailyForm");
+      dailyButton.disabled = key > todayKey();
+      dailyButton.textContent = key > todayKey() ? "Daily check-in available that day" : "Open daily check-in";
+      renderAppointments();
+      document.getElementById("calendarDayDialog").showModal();
+    }
+
+    function renderCalendar() {
+      const year = calendarCursor.getFullYear();
+      const month = calendarCursor.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const mondayOffset = (firstDay.getDay() + 6) % 7;
+      const today = todayKey();
+      document.getElementById("calendarMonth").textContent = firstDay.toLocaleDateString([], { month: "long", year: "numeric" });
+      document.getElementById("nextMonth").disabled = false;
+
+      const cells = Array.from({ length: mondayOffset }, () => `<span class="calendar-blank" aria-hidden="true"></span>`);
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = localDateKey(new Date(year, month, day, 12));
+        const hasEntry = calendarHasEntry(key);
+        const classes = [
+          "calendar-day",
+          key === today ? "today" : "",
+          key === selectedDate ? "selected" : "",
+          hasEntry ? "has-entry" : ""
+        ].filter(Boolean).join(" ");
+        const label = new Date(year, month, day, 12).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        cells.push(`<button class="${classes}" data-date="${key}" aria-label="${escapeHtml(label)}${hasEntry ? ", saved activity" : ""}">${day}</button>`);
+      }
+      document.getElementById("calendarGrid").innerHTML = cells.join("");
+    }
+
     function renderHistory() {
       const grid = document.getElementById("historyGrid");
-      const keys = Object.keys(state.logs).filter(key => {
-        const log = state.logs[key];
-        return log.mood || log.notes || Object.keys(log.checks || {}).some(k => log.checks[k]) ||
-          Object.keys(log.metrics || {}).length || Object.values(log.counters || {}).some(value => Number(value) > 0);
-      }).sort().reverse();
+      const keys = Object.keys(state.logs).filter(key => logHasEntry(state.logs[key])).sort().reverse();
       if (!keys.length) {
         grid.innerHTML = `<div class="no-history" style="grid-column:1/-1"><div style="font-size:36px;margin-bottom:10px">🌱</div><strong>No entries yet</strong><br><small>Your first check-in will appear here.</small></div>`;
         return;
@@ -1133,6 +1311,11 @@
       document.querySelectorAll(".nav-btn").forEach(x => x.classList.toggle("active", x === btn));
       document.querySelectorAll(".panel").forEach(x => x.classList.toggle("active", x.id === btn.dataset.panel));
       if (btn.dataset.panel === "historyPanel") renderHistory();
+      if (btn.dataset.panel === "calendarPanel") {
+        const date = dateFromKey(selectedDate);
+        calendarCursor = new Date(date.getFullYear(), date.getMonth(), 1);
+        renderCalendar();
+      }
       if (btn.dataset.panel === "customizePanel") renderManage();
       if (btn.dataset.panel === "settingsPanel") renderSettings();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1141,6 +1324,57 @@
       const card = event.target.closest(".day-card");
       if (!card) return;
       selectedDate = card.dataset.date;
+      document.querySelector('[data-panel="todayPanel"]').click();
+      renderToday();
+    });
+    document.getElementById("calendarGrid").addEventListener("click", event => {
+      const day = event.target.closest(".calendar-day");
+      if (!day || day.disabled) return;
+      openCalendarDay(day.dataset.date);
+    });
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 1);
+      renderCalendar();
+    });
+    document.querySelectorAll(".close-calendar-dialog").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("calendarDayDialog").close();
+      renderCalendar();
+    }));
+    document.getElementById("calendarDayNote").addEventListener("input", event => {
+      getCalendarDay().note = event.target.value;
+      saveState();
+    });
+    document.getElementById("appointmentForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const title = document.getElementById("appointmentTitle").value.trim();
+      if (!title) return;
+      getCalendarDay().appointments.push({
+        id: uid("appointment"),
+        title,
+        time: document.getElementById("appointmentTime").value
+      });
+      saveState("Appointment added");
+      document.getElementById("appointmentTitle").value = "";
+      document.getElementById("appointmentTime").value = "";
+      renderAppointments();
+      renderCalendar();
+    });
+    document.getElementById("appointmentList").addEventListener("click", event => {
+      const remove = event.target.closest(".delete-appointment");
+      if (!remove) return;
+      const day = getCalendarDay();
+      day.appointments = day.appointments.filter(appointment => appointment.id !== remove.dataset.id);
+      saveState("Appointment removed");
+      renderAppointments();
+      renderCalendar();
+    });
+    document.getElementById("openDailyForm").addEventListener("click", () => {
+      selectedDate = calendarEditingDate;
+      document.getElementById("calendarDayDialog").close();
       document.querySelector('[data-panel="todayPanel"]').click();
       renderToday();
     });
