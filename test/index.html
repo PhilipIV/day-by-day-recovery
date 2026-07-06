@@ -235,6 +235,8 @@
     .behavior-row strong { font-size: 13px; }
     .behavior-row small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
     .custom-section-name { background: white; }
+    .behavior-row.card-name-row { grid-template-columns: minmax(0,1fr) auto; }
+    .behavior-row .row-actions { justify-content: flex-end; }
 
     dialog {
       width: min(460px, calc(100% - 28px)); border: 0; border-radius: 24px; padding: 0; color: var(--ink);
@@ -277,6 +279,7 @@
       .preset-grid { grid-template-columns: 1fr 1fr; }
       .behavior-row { grid-template-columns: 1fr auto; }
       .behavior-row .field-select { grid-column: 1 / -1; grid-row: 2; }
+      .behavior-row.card-name-row { grid-template-columns: 1fr auto; }
     }
   </style>
 </head>
@@ -458,46 +461,36 @@
               <div><strong id="behaviorRoutineName">Morning routine</strong><small>Built-in section</small></div>
               <select class="field-select core-behavior" data-section="routine">
                 <option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
-              </select><span></span>
+              </select><button class="tiny-btn edit-section-name" data-heading="routine" title="Rename section" aria-label="Rename morning routine">✎</button>
             </div>
             <div class="behavior-row">
               <div><strong id="behaviorGoalsName">Daily goals</strong><small>Built-in section</small></div>
               <select class="field-select core-behavior" data-section="goals">
                 <option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
-              </select><span></span>
+              </select><button class="tiny-btn edit-section-name" data-heading="goals" title="Rename section" aria-label="Rename daily goals">✎</button>
             </div>
             <div class="behavior-row">
               <div><strong id="behaviorMetricsName">How you're feeling</strong><small>Built-in section</small></div>
               <select class="field-select core-behavior" data-section="metrics">
                 <option value="flexible">Flexible fields</option><option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
-              </select><span></span>
+              </select><button class="tiny-btn edit-section-name" data-heading="metrics" title="Rename section" aria-label="Rename symptoms section">✎</button>
             </div>
           </div>
           <div class="behavior-list" id="customBehaviorList" style="margin-top:10px"></div>
-        </section>
-
-        <section class="card settings-card">
-          <h2>Section names</h2>
-          <p>These names change everywhere in the app without changing any saved entries.</p>
-          <div class="settings-fields">
-            <label class="form-label">Morning routine
-              <input class="field-input heading-setting" data-heading="routine" maxlength="40">
-            </label>
-            <label class="form-label">Daily goals
-              <input class="field-input heading-setting" data-heading="goals" maxlength="40">
-            </label>
-            <label class="form-label">Symptoms and check-ins
-              <input class="field-input heading-setting" data-heading="metrics" maxlength="40">
-            </label>
-            <label class="form-label">Mood card
-              <input class="field-input heading-setting" data-heading="mood" maxlength="40">
-            </label>
-            <label class="form-label">Notes card
-              <input class="field-input heading-setting" data-heading="notes" maxlength="40">
-            </label>
-            <label class="form-label">Reminder card
-              <input class="field-input heading-setting" data-heading="reminder" maxlength="40">
-            </label>
+          <h3 style="font-family:var(--font-display);margin:22px 0 10px">Other card names</h3>
+          <div class="behavior-list">
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingMoodName">How’s your mood?</strong><small>Mood card</small></div>
+              <button class="tiny-btn edit-section-name" data-heading="mood" title="Rename card" aria-label="Rename mood card">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingNotesName">Notes for today</strong><small>Notes card</small></div>
+              <button class="tiny-btn edit-section-name" data-heading="notes" title="Rename card" aria-label="Rename notes card">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingReminderName">A gentle reminder</strong><small>Reminder card</small></div>
+              <button class="tiny-btn edit-section-name" data-heading="reminder" title="Rename card" aria-label="Rename reminder card">✎</button>
+            </div>
           </div>
         </section>
 
@@ -607,6 +600,24 @@
     </form>
   </dialog>
 
+  <dialog id="renameSectionDialog">
+    <form id="renameSectionForm">
+      <div class="modal-head">
+        <h2 id="renameSectionTitle">Rename section</h2>
+        <button type="button" class="icon-btn close-rename-dialog" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Name
+          <input class="field-input" id="renameSectionInput" required maxlength="40">
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary close-rename-dialog">Cancel</button>
+          <button type="submit" class="btn">Save name</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
   <script>
     const IS_TEST_BUILD = location.pathname.includes("/test/");
     const STORAGE_KEY = IS_TEST_BUILD ? "dayByDayRecovery.test.v1" : "dayByDayRecovery.v1";
@@ -663,6 +674,7 @@
     let selectedDate = todayKey();
     let deferredInstallPrompt = null;
     let editing = { section: null, id: null };
+    let renaming = { heading: null, sectionId: null };
 
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
     function normalizeState(saved) {
@@ -779,7 +791,8 @@
         routineHeading: h.routine, goalsHeading: h.goals, metricsHeading: h.metrics,
         moodHeading: h.mood, notesHeading: h.notes, reminderHeading: h.reminder,
         manageRoutineHeading: h.routine, manageGoalsHeading: h.goals, manageMetricsHeading: h.metrics,
-        behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics
+        behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics,
+        settingMoodName: h.mood, settingNotesName: h.notes, settingReminderName: h.reminder
       };
       Object.entries(pairs).forEach(([id, value]) => {
         const el = document.getElementById(id);
@@ -788,9 +801,6 @@
     }
     function renderSettings() {
       renderHeadings();
-      document.querySelectorAll(".heading-setting").forEach(input => {
-        input.value = state.config.headings[input.dataset.heading] || "";
-      });
       document.querySelectorAll(".theme-setting").forEach(input => {
         input.value = state.config.theme[input.dataset.theme];
       });
@@ -800,7 +810,7 @@
       document.getElementById("customBehaviorList").innerHTML = state.config.customSections.map(section => `
         <div class="behavior-row">
           <div>
-            <input class="field-input custom-section-name" data-section-id="${section.id}" value="${escapeHtml(section.name)}" maxlength="40" aria-label="Custom section name">
+            <strong>${escapeHtml(section.name)}</strong>
             <small>Custom section · ${section.items.length} item${section.items.length === 1 ? "" : "s"}</small>
           </div>
           <select class="field-select custom-behavior" data-section-id="${section.id}" aria-label="Section behaviour">
@@ -808,7 +818,10 @@
             <option value="slider" ${section.behavior === "slider" ? "selected" : ""}>0–10 sliders</option>
             <option value="counter" ${section.behavior === "counter" ? "selected" : ""}>Manual counters</option>
           </select>
-          <button class="tiny-btn danger delete-section" data-section-id="${section.id}" title="Delete section">×</button>
+          <div class="row-actions">
+            <button class="tiny-btn edit-section-name" data-section-id="${section.id}" title="Rename section" aria-label="Rename ${escapeHtml(section.name)}">✎</button>
+            <button class="tiny-btn danger delete-section" data-section-id="${section.id}" title="Delete section" aria-label="Delete ${escapeHtml(section.name)}">×</button>
+          </div>
         </div>`).join("") || `<div class="empty">No custom sections yet.</div>`;
     }
 
@@ -1061,12 +1074,6 @@
         saveState();
         updateProgress();
       }
-      if (event.target.matches(".custom-section-name")) {
-        const section = getCustomSection(event.target.dataset.sectionId);
-        if (section && event.target.value.trim()) section.name = event.target.value.trim();
-        saveState();
-        renderToday();
-      }
     });
     document.getElementById("dailyNotes").addEventListener("input", event => {
       getLog().notes = event.target.value;
@@ -1139,6 +1146,18 @@
           renderManage();
           renderToday();
         }
+      }
+      const rename = event.target.closest(".edit-section-name");
+      if (rename) {
+        renaming = { heading: rename.dataset.heading || null, sectionId: rename.dataset.sectionId || null };
+        const currentName = renaming.heading
+          ? state.config.headings[renaming.heading]
+          : getCustomSection(renaming.sectionId)?.name;
+        document.getElementById("renameSectionTitle").textContent = renaming.heading && ["mood","notes","reminder"].includes(renaming.heading)
+          ? "Rename card" : "Rename section";
+        document.getElementById("renameSectionInput").value = currentName || "";
+        document.getElementById("renameSectionDialog").showModal();
+        setTimeout(() => document.getElementById("renameSectionInput").focus(), 50);
       }
     });
     document.getElementById("fieldForm").addEventListener("submit", event => {
@@ -1218,12 +1237,6 @@
         renderToday(); renderManage();
       }
     });
-    document.querySelectorAll(".heading-setting").forEach(input => input.addEventListener("input", event => {
-      const value = event.target.value.trim();
-      state.config.headings[event.target.dataset.heading] = value || defaults.config.headings[event.target.dataset.heading];
-      saveState();
-      renderHeadings();
-    }));
     document.querySelectorAll(".theme-setting").forEach(input => input.addEventListener("input", event => {
       state.config.theme[event.target.dataset.theme] = event.target.value;
       saveState();
@@ -1262,6 +1275,24 @@
       });
       saveState("Section added");
       document.getElementById("sectionDialog").close();
+      renderSettings();
+      renderManage();
+      renderToday();
+    });
+    document.querySelectorAll(".close-rename-dialog").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("renameSectionDialog").close();
+    }));
+    document.getElementById("renameSectionForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const name = document.getElementById("renameSectionInput").value.trim();
+      if (!name) return;
+      if (renaming.heading) state.config.headings[renaming.heading] = name;
+      else {
+        const section = getCustomSection(renaming.sectionId);
+        if (section) section.name = name;
+      }
+      saveState("Name updated");
+      document.getElementById("renameSectionDialog").close();
       renderSettings();
       renderManage();
       renderToday();
