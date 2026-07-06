@@ -1,0 +1,1292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f4f5a">
+  <meta name="description" content="A private, flexible postpartum recovery tracker.">
+  <link rel="manifest" href="manifest.json">
+  <title>Day by Day — Recovery Tracker</title>
+  <style>
+    :root {
+      --ink: #18343b;
+      --muted: #687d80;
+      --teal: #1f5962;
+      --teal-dark: #173f46;
+      --mint: #dfeee8;
+      --mint-soft: #eef6f2;
+      --coral: #e88373;
+      --coral-soft: #fae8e2;
+      --cream: #fbf8f2;
+      --paper: #fffefa;
+      --line: #dde6e2;
+      --shadow: 0 12px 34px rgba(31, 72, 78, .10);
+      --radius: 22px;
+      --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-display: Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--cream); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 5%, rgba(232, 131, 115, .13), transparent 28rem),
+        radial-gradient(circle at 0% 35%, rgba(112, 169, 154, .12), transparent 26rem),
+        var(--cream);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    button, label, select { -webkit-tap-highlight-color: transparent; }
+    .hidden { display: none !important; }
+
+    .shell { width: min(1040px, 100%); margin: 0 auto; padding: 26px 20px 112px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 44px; height: 44px; border-radius: 15px; display: grid; place-items: center;
+      color: white; background: var(--teal); box-shadow: 0 8px 20px rgba(31, 89, 98, .2);
+    }
+    .brand-mark svg { width: 24px; }
+    .brand-copy strong { display: block; font-family: var(--font-display); font-size: 20px; letter-spacing: -.2px; }
+    .brand-copy span { color: var(--muted); font-size: 12px; }
+
+    .icon-btn {
+      width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line);
+      border-radius: 14px; background: rgba(255,255,255,.72); cursor: pointer; transition: .2s ease;
+    }
+    .icon-btn:hover { transform: translateY(-1px); border-color: #c2d4cd; }
+    .icon-btn svg { width: 20px; height: 20px; }
+
+    .hero {
+      display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 24px;
+      background: var(--teal); color: white; border-radius: 30px; padding: 30px;
+      box-shadow: var(--shadow); overflow: hidden; position: relative;
+    }
+    .hero::after {
+      content: ""; position: absolute; width: 270px; height: 270px; right: -120px; top: -150px;
+      border: 42px solid rgba(255,255,255,.055); border-radius: 50%;
+    }
+    .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; opacity: .72; }
+    h1 { margin: 7px 0 7px; font-family: var(--font-display); font-size: clamp(30px, 6vw, 50px); line-height: 1; font-weight: 500; }
+    .hero p { margin: 0; color: rgba(255,255,255,.74); }
+    .progress-orb {
+      --progress: 0deg; width: 112px; height: 112px; border-radius: 50%; display: grid; place-items: center;
+      background: conic-gradient(var(--coral) var(--progress), rgba(255,255,255,.12) 0);
+      position: relative; z-index: 1;
+    }
+    .progress-orb::before { content: ""; position: absolute; inset: 9px; background: var(--teal); border-radius: 50%; }
+    .progress-orb div { position: relative; text-align: center; }
+    .progress-orb strong { display: block; font-size: 25px; }
+    .progress-orb span { display: block; font-size: 10px; opacity: .67; text-transform: uppercase; letter-spacing: .8px; }
+
+    .date-strip {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin: 24px 0;
+    }
+    .date-title { text-align: center; }
+    .date-title strong { display: block; font-size: 18px; }
+    .date-title span { color: var(--muted); font-size: 13px; }
+
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; align-items: start; }
+    .stack { display: grid; gap: 18px; }
+    .card { background: rgba(255,254,250,.92); border: 1px solid rgba(221,230,226,.9); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 20px 12px; }
+    .card-title { display: flex; align-items: center; gap: 11px; }
+    .section-icon { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--mint); color: var(--teal); }
+    .section-icon.coral { background: var(--coral-soft); color: #a84e43; }
+    .section-icon svg { width: 18px; height: 18px; }
+    h2 { margin: 0; font-family: var(--font-display); font-size: 21px; font-weight: 600; }
+    .count { padding: 4px 9px; background: var(--mint-soft); color: var(--teal); border-radius: 99px; font-size: 12px; font-weight: 800; }
+    .items { padding: 0 12px 12px; }
+    .empty { padding: 26px 16px; text-align: center; color: var(--muted); font-size: 14px; }
+
+    .check-item {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; min-height: 57px;
+      padding: 9px 9px; border-radius: 15px; transition: background .18s ease;
+    }
+    .check-item:hover { background: var(--mint-soft); }
+    .check-control { position: absolute; opacity: 0; pointer-events: none; }
+    .check-ui {
+      width: 27px; height: 27px; border: 2px solid #b9cbc5; border-radius: 9px; display: grid; place-items: center;
+      cursor: pointer; transition: .18s ease; background: white;
+    }
+    .check-ui svg { width: 17px; opacity: 0; transform: scale(.6); transition: .18s ease; }
+    .check-control:checked + .check-ui { background: var(--teal); border-color: var(--teal); color: white; }
+    .check-control:checked + .check-ui svg { opacity: 1; transform: scale(1); }
+    .check-control:checked ~ .item-copy strong { color: #79908b; text-decoration: line-through; }
+    .item-copy strong { font-size: 14px; font-weight: 700; }
+    .item-copy small { display: block; color: var(--muted); margin-top: 2px; }
+    .target { color: var(--teal); background: var(--mint); padding: 5px 9px; border-radius: 8px; font-size: 12px; font-weight: 800; }
+
+    .metric { padding: 14px 10px 18px; border-bottom: 1px solid var(--line); }
+    .metric:last-child { border-bottom: 0; }
+    .metric-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; font-size: 14px; font-weight: 750; }
+    .metric-label output { font-family: var(--font-display); color: var(--teal); font-size: 22px; font-weight: bold; }
+    input[type="range"] { width: 100%; accent-color: var(--coral); }
+    .scale { display: flex; justify-content: space-between; color: #8a9b99; font-size: 10px; margin-top: 4px; }
+    .counter-row {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px;
+      padding: 11px 9px; min-height: 62px; border-bottom: 1px solid var(--line);
+    }
+    .counter-row:last-child { border-bottom: 0; }
+    .counter-control { display: flex; align-items: center; gap: 9px; }
+    .counter-btn {
+      width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 11px; background: white;
+      color: var(--teal); font-size: 20px; font-weight: 800; cursor: pointer;
+    }
+    .counter-btn:hover { background: var(--mint-soft); border-color: var(--teal); }
+    .counter-value { min-width: 32px; text-align: center; font-family: var(--font-display); font-size: 23px; font-weight: 700; }
+    .field-input, .field-select, .notes {
+      width: 100%; border: 1px solid var(--line); background: white; color: var(--ink); border-radius: 13px;
+      padding: 11px 12px; outline: none; transition: border .18s, box-shadow .18s;
+    }
+    .field-input:focus, .field-select:focus, .notes:focus { border-color: #78a89b; box-shadow: 0 0 0 3px rgba(74,145,126,.12); }
+    .notes { min-height: 100px; resize: vertical; }
+
+    .side-card { padding: 20px; }
+    .side-card h3 { margin: 0 0 7px; font-family: var(--font-display); font-size: 20px; }
+    .side-card p { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0 0 16px; }
+    .mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .mood-btn { border: 1px solid var(--line); background: white; border-radius: 12px; height: 44px; font-size: 21px; cursor: pointer; }
+    .mood-btn.selected { border-color: var(--coral); background: var(--coral-soft); transform: translateY(-2px); }
+    .save-state { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; margin-top: 14px; }
+    .save-dot { width: 7px; height: 7px; background: #58a47d; border-radius: 50%; }
+    .tip { border: 0; color: white; background: linear-gradient(145deg, #d87869, #e99483); }
+    .tip p { color: rgba(255,255,255,.84); margin-bottom: 0; }
+
+    .nav {
+      position: fixed; z-index: 20; left: 50%; bottom: max(15px, env(safe-area-inset-bottom)); transform: translateX(-50%);
+      display: flex; gap: 5px; padding: 7px; border: 1px solid rgba(255,255,255,.6); border-radius: 19px;
+      background: rgba(255,254,250,.91); backdrop-filter: blur(16px); box-shadow: 0 15px 40px rgba(25,58,63,.18);
+    }
+    .nav-btn { min-width: 105px; border: 0; border-radius: 13px; background: transparent; color: var(--muted); padding: 10px 13px; cursor: pointer; font-size: 13px; font-weight: 750; }
+    .nav-btn.active { color: white; background: var(--teal); }
+
+    .panel { display: none; }
+    .panel.active { display: block; animation: rise .25s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
+
+    .page-intro { margin: 15px 0 24px; }
+    .page-intro h1 { color: var(--ink); margin-bottom: 10px; }
+    .page-intro p { color: var(--muted); margin: 0; max-width: 630px; line-height: 1.5; }
+
+    .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .day-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 17px; cursor: pointer; transition: .2s; }
+    .day-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .day-card header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
+    .day-card header strong { font-family: var(--font-display); }
+    .day-card .mood { font-size: 22px; }
+    .mini-bar { height: 7px; background: var(--mint); border-radius: 99px; overflow: hidden; }
+    .mini-bar span { display: block; height: 100%; background: var(--coral); border-radius: inherit; }
+    .day-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 7px; }
+    .no-history { text-align: center; padding: 65px 20px; border: 1px dashed #c9d8d2; border-radius: 22px; color: var(--muted); }
+
+    .settings-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+    .manage-card { padding: 20px; }
+    .manage-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .manage-list { display: grid; gap: 8px; }
+    .manage-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; background: var(--mint-soft); border-radius: 13px; padding: 11px 12px; }
+    .manage-row strong { font-size: 13px; }
+    .manage-row small { color: var(--muted); display: block; margin-top: 2px; }
+    .row-actions { display: flex; gap: 4px; }
+    .tiny-btn { border: 0; background: transparent; padding: 6px; border-radius: 8px; cursor: pointer; color: var(--muted); }
+    .tiny-btn:hover { color: var(--ink); background: white; }
+    .tiny-btn.danger:hover { color: #b4483c; background: var(--coral-soft); }
+    .btn {
+      border: 0; border-radius: 12px; padding: 10px 14px; cursor: pointer; background: var(--teal); color: white;
+      font-weight: 750; font-size: 13px; transition: .18s ease; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .btn:hover { transform: translateY(-1px); background: var(--teal-dark); }
+    .btn.secondary { color: var(--teal); background: var(--mint); }
+    .btn.coral { background: var(--coral); }
+    .btn.full { width: 100%; }
+    .data-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .privacy-note { grid-column: 1 / -1; background: var(--teal); color: white; padding: 20px; border-radius: var(--radius); }
+    .privacy-note p { color: rgba(255,255,255,.75); font-size: 13px; margin: 7px 0 0; line-height: 1.5; }
+    .settings-card { padding: 22px; }
+    .settings-card > p { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 7px 0 18px; }
+    .settings-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .settings-fields .wide { grid-column: 1 / -1; }
+    .color-field { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
+    .color-field input[type="color"] {
+      width: 44px; height: 42px; padding: 3px; border: 1px solid var(--line); border-radius: 12px;
+      background: white; cursor: pointer;
+    }
+    .color-field span { font-size: 13px; font-weight: 750; }
+    .color-field small { display: block; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin: 4px 0 20px; }
+    .preset-btn {
+      border: 1px solid var(--line); background: var(--paper); border-radius: 14px; padding: 10px 7px;
+      cursor: pointer; font-size: 12px; font-weight: 750;
+    }
+    .preset-btn:hover { border-color: var(--teal); }
+    .swatches { display: flex; justify-content: center; gap: 4px; margin-bottom: 7px; }
+    .swatches i { width: 15px; height: 15px; border-radius: 50%; display: block; }
+    .behavior-list { display: grid; gap: 10px; }
+    .behavior-row {
+      display: grid; grid-template-columns: minmax(0,1fr) 170px auto; gap: 10px; align-items: center;
+      padding: 12px; background: var(--mint-soft); border-radius: 14px;
+    }
+    .behavior-row strong { font-size: 13px; }
+    .behavior-row small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .custom-section-name { background: white; }
+
+    dialog {
+      width: min(460px, calc(100% - 28px)); border: 0; border-radius: 24px; padding: 0; color: var(--ink);
+      background: var(--paper); box-shadow: 0 30px 90px rgba(15,45,49,.28);
+    }
+    dialog::backdrop { background: rgba(17,43,47,.46); backdrop-filter: blur(4px); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 10px; }
+    .modal-head h2 { font-size: 23px; }
+    .modal-body { padding: 10px 22px 22px; }
+    .form-grid { display: grid; gap: 14px; }
+    .form-label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 750; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .toast {
+      position: fixed; z-index: 50; left: 50%; top: 18px; transform: translate(-50%, -90px);
+      background: var(--teal-dark); color: white; border-radius: 12px; padding: 11px 16px; box-shadow: var(--shadow);
+      font-size: 13px; font-weight: 700; opacity: 0; transition: .25s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 780px) {
+      .shell { padding: 18px 14px 105px; }
+      .layout, .settings-layout { grid-template-columns: 1fr; }
+      .sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .hero { padding: 24px 20px; border-radius: 24px; }
+      .progress-orb { width: 92px; height: 92px; }
+      .nav { width: calc(100% - 28px); }
+      .nav-btn { flex: 1; min-width: 0; }
+    }
+    @media (max-width: 520px) {
+      .brand-copy span { display: none; }
+      .hero { grid-template-columns: 1fr; }
+      .progress-orb { position: absolute; right: 18px; bottom: 19px; width: 78px; height: 78px; }
+      .progress-orb strong { font-size: 20px; }
+      .hero p { padding-right: 85px; min-height: 35px; }
+      .sidebar { grid-template-columns: 1fr; }
+      .data-actions { grid-template-columns: 1fr; }
+      .nav-btn { padding: 10px 5px; font-size: 12px; }
+      .settings-fields { grid-template-columns: 1fr; }
+      .settings-fields .wide { grid-column: auto; }
+      .preset-grid { grid-template-columns: 1fr 1fr; }
+      .behavior-row { grid-template-columns: 1fr auto; }
+      .behavior-row .field-select { grid-column: 1 / -1; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast" role="status"></div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M12 21s-7-4.4-7-11a4.2 4.2 0 0 1 7-2.6A4.2 4.2 0 0 1 19 10c0 6.6-7 11-7 11Z"/>
+            <path d="M12 7v8m-3-3h6"/>
+          </svg>
+        </div>
+        <div class="brand-copy"><strong>Day by Day</strong><span>Your private recovery companion</span></div>
+      </div>
+      <button class="icon-btn" id="installBtn" title="Install app" aria-label="Install app">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 19h14"/></svg>
+      </button>
+    </header>
+
+    <section class="panel active" id="todayPanel">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">30-day recovery plan</div>
+          <h1 id="greeting">Good morning</h1>
+          <p>Small steps count. Be gentle with yourself today.</p>
+        </div>
+        <div class="progress-orb" id="progressOrb">
+          <div><strong id="progressText">0%</strong><span>complete</span></div>
+        </div>
+      </div>
+
+      <div class="date-strip">
+        <button class="icon-btn" id="prevDay" aria-label="Previous day">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="date-title"><strong id="datePrimary"></strong><span id="dateSecondary"></span></div>
+        <button class="icon-btn" id="nextDay" aria-label="Next day">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="layout">
+        <div class="stack">
+          <section class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <div class="section-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="9"/></svg>
+                </div>
+                <h2 id="routineHeading">Morning routine</h2>
+              </div>
+              <span class="count" id="routineCount">0 of 0</span>
+            </div>
+            <div class="items" id="routineItems"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <div class="section-icon coral">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0-9-9"/><path d="m3 21 4-1-3-3"/><path d="m9 12 2 2 4-5"/></svg>
+                </div>
+                <h2 id="goalsHeading">Daily goals</h2>
+              </div>
+              <span class="count" id="goalCount">0 of 0</span>
+            </div>
+            <div class="items" id="goalItems"></div>
+          </section>
+
+          <div class="stack" id="customSectionsContainer"></div>
+
+          <section class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <div class="section-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M6 16l4-5 3 3 5-8"/></svg>
+                </div>
+                <h2 id="metricsHeading">How you're feeling</h2>
+              </div>
+              <span class="count hidden" id="metricsCount">0 of 0</span>
+            </div>
+            <div class="items" id="metricItems"></div>
+          </section>
+        </div>
+
+        <aside class="stack sidebar">
+          <section class="card side-card">
+            <h3 id="moodHeading">How’s your mood?</h3>
+            <p>No right answer—just a quick check-in.</p>
+            <div class="mood-grid" id="moodGrid">
+              <button class="mood-btn" data-mood="1" aria-label="Very difficult">😞</button>
+              <button class="mood-btn" data-mood="2" aria-label="Difficult">😕</button>
+              <button class="mood-btn" data-mood="3" aria-label="Okay">😐</button>
+              <button class="mood-btn" data-mood="4" aria-label="Good">🙂</button>
+              <button class="mood-btn" data-mood="5" aria-label="Great">😊</button>
+            </div>
+            <div class="save-state"><span class="save-dot"></span> Changes save automatically</div>
+          </section>
+
+          <section class="card side-card">
+            <h3 id="notesHeading">Notes for today</h3>
+            <p>Anything you want to remember or discuss.</p>
+            <textarea class="notes" id="dailyNotes" placeholder="A win, a concern, a question…"></textarea>
+          </section>
+
+          <section class="card side-card tip">
+            <h3 id="reminderHeading">A gentle reminder</h3>
+            <p>This tracker supports—not replaces—medical care. Seek urgent help for severe bleeding, chest pain, trouble breathing, seizures, or thoughts of harming yourself or your baby.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="panel" id="historyPanel">
+      <div class="page-intro">
+        <div class="eyebrow" style="color:var(--coral)">Your journey</div>
+        <h1>Recovery history</h1>
+        <p>Look back without judgment. Patterns can help you and your care team understand what you need.</p>
+      </div>
+      <div class="history-grid" id="historyGrid"></div>
+    </section>
+
+    <section class="panel" id="customizePanel">
+      <div class="page-intro">
+        <div class="eyebrow" style="color:var(--coral)">Make it yours</div>
+        <h1>Customize your plan</h1>
+        <p>Add, rename, or remove anything. Your daily history stays intact when the plan changes.</p>
+      </div>
+      <div class="settings-layout">
+        <section class="card manage-card">
+          <div class="manage-head"><h2 id="manageRoutineHeading">Morning routine</h2><button class="btn secondary add-field" data-section="routine">+ Add</button></div>
+          <div class="manage-list" id="manageRoutine"></div>
+        </section>
+        <section class="card manage-card">
+          <div class="manage-head"><h2 id="manageGoalsHeading">Daily goals</h2><button class="btn secondary add-field" data-section="goals">+ Add</button></div>
+          <div class="manage-list" id="manageGoals"></div>
+        </section>
+        <section class="card manage-card">
+          <div class="manage-head"><h2 id="manageMetricsHeading">Symptoms & check-ins</h2><button class="btn secondary add-field" data-section="metrics">+ Add</button></div>
+          <div class="manage-list" id="manageMetrics"></div>
+        </section>
+        <div id="manageCustomSections" style="display:contents"></div>
+        <section class="card manage-card">
+          <div class="manage-head"><h2>Your data</h2></div>
+          <p style="color:var(--muted);font-size:13px;line-height:1.5">Download a backup before switching devices, or export a simple spreadsheet for your care team.</p>
+          <div class="data-actions">
+            <button class="btn" id="backupBtn">Download backup</button>
+            <button class="btn secondary" id="restoreBtn">Restore backup</button>
+            <button class="btn secondary" id="csvBtn">Export CSV</button>
+            <button class="btn coral" id="resetBtn">Reset app</button>
+          </div>
+          <input type="file" id="restoreInput" accept=".json,application/json" class="hidden">
+        </section>
+        <section class="privacy-note">
+          <strong>Private by design</strong>
+          <p>Everything is stored only in this browser. There’s no account, analytics, advertising, or cloud upload.</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel" id="settingsPanel">
+      <div class="page-intro">
+        <div class="eyebrow" style="color:var(--coral)">Your space</div>
+        <h1>Settings</h1>
+        <p>Rename the main sections and choose the colours and typography that feel best to you.</p>
+      </div>
+      <div class="settings-layout">
+        <section class="card settings-card" style="grid-column:1/-1">
+          <div class="manage-head">
+            <div><h2>Sections & behaviour</h2></div>
+            <button class="btn secondary" id="addSectionBtn">+ Add section</button>
+          </div>
+          <p>Choose how each item is recorded. New sections appear on Today and can have their own items.</p>
+          <div class="behavior-list">
+            <div class="behavior-row">
+              <div><strong id="behaviorRoutineName">Morning routine</strong><small>Built-in section</small></div>
+              <select class="field-select core-behavior" data-section="routine">
+                <option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
+              </select><span></span>
+            </div>
+            <div class="behavior-row">
+              <div><strong id="behaviorGoalsName">Daily goals</strong><small>Built-in section</small></div>
+              <select class="field-select core-behavior" data-section="goals">
+                <option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
+              </select><span></span>
+            </div>
+            <div class="behavior-row">
+              <div><strong id="behaviorMetricsName">How you're feeling</strong><small>Built-in section</small></div>
+              <select class="field-select core-behavior" data-section="metrics">
+                <option value="flexible">Flexible fields</option><option value="checklist">Checklist</option><option value="slider">0–10 sliders</option><option value="counter">Manual counters</option>
+              </select><span></span>
+            </div>
+          </div>
+          <div class="behavior-list" id="customBehaviorList" style="margin-top:10px"></div>
+        </section>
+
+        <section class="card settings-card">
+          <h2>Section names</h2>
+          <p>These names change everywhere in the app without changing any saved entries.</p>
+          <div class="settings-fields">
+            <label class="form-label">Morning routine
+              <input class="field-input heading-setting" data-heading="routine" maxlength="40">
+            </label>
+            <label class="form-label">Daily goals
+              <input class="field-input heading-setting" data-heading="goals" maxlength="40">
+            </label>
+            <label class="form-label">Symptoms and check-ins
+              <input class="field-input heading-setting" data-heading="metrics" maxlength="40">
+            </label>
+            <label class="form-label">Mood card
+              <input class="field-input heading-setting" data-heading="mood" maxlength="40">
+            </label>
+            <label class="form-label">Notes card
+              <input class="field-input heading-setting" data-heading="notes" maxlength="40">
+            </label>
+            <label class="form-label">Reminder card
+              <input class="field-input heading-setting" data-heading="reminder" maxlength="40">
+            </label>
+          </div>
+        </section>
+
+        <section class="card settings-card">
+          <h2>Look and feel</h2>
+          <p>Start with a palette, then fine-tune any colour below.</p>
+          <div class="preset-grid">
+            <button class="preset-btn" data-preset="calm"><span class="swatches"><i style="background:#1f5962"></i><i style="background:#e88373"></i><i style="background:#fbf8f2"></i></span>Calm</button>
+            <button class="preset-btn" data-preset="rose"><span class="swatches"><i style="background:#714552"></i><i style="background:#d9898f"></i><i style="background:#fff7f5"></i></span>Rose</button>
+            <button class="preset-btn" data-preset="lavender"><span class="swatches"><i style="background:#575174"></i><i style="background:#aa84b8"></i><i style="background:#f8f6fb"></i></span>Lavender</button>
+            <button class="preset-btn" data-preset="ocean"><span class="swatches"><i style="background:#24506b"></i><i style="background:#e3a65f"></i><i style="background:#f5f9fa"></i></span>Ocean</button>
+          </div>
+          <div class="settings-fields">
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="primary"><span>Primary<small>Headers and buttons</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="accent"><span>Accent<small>Progress and highlights</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="background"><span>Background<small>Page colour</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="surface"><span>Cards<small>Card colour</small></span></label>
+            <label class="color-field"><input type="color" class="theme-setting" data-theme="text"><span>Text<small>Main text colour</small></span></label>
+            <label class="form-label">Body font
+              <select class="field-select theme-setting" data-theme="fontBody">
+                <option value="system">Clean & modern</option>
+                <option value="rounded">Soft & rounded</option>
+                <option value="serif">Classic serif</option>
+                <option value="mono">Simple mono</option>
+              </select>
+            </label>
+            <label class="form-label wide">Heading font
+              <select class="field-select theme-setting" data-theme="fontDisplay">
+                <option value="serif">Classic serif</option>
+                <option value="system">Clean & modern</option>
+                <option value="rounded">Soft & rounded</option>
+                <option value="mono">Simple mono</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn secondary" id="resetAppearance" style="margin-top:18px">Reset appearance</button>
+        </section>
+        <section class="privacy-note">
+          <strong>Settings are private too</strong>
+          <p>Your names, colours, and fonts are stored only on this device and are included in downloaded backups.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav" aria-label="Main navigation">
+    <button class="nav-btn active" data-panel="todayPanel">Today</button>
+    <button class="nav-btn" data-panel="historyPanel">History</button>
+    <button class="nav-btn" data-panel="customizePanel">Customize</button>
+    <button class="nav-btn" data-panel="settingsPanel">Settings</button>
+  </nav>
+
+  <dialog id="fieldDialog">
+    <form id="fieldForm">
+      <div class="modal-head">
+        <h2 id="dialogTitle">Add a field</h2>
+        <button type="button" class="icon-btn" id="closeDialog" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <label class="form-label">Name
+            <input class="field-input" id="fieldName" required maxlength="60" placeholder="e.g. Vitamin D">
+          </label>
+          <label class="form-label" id="detailLabel">Target or helpful note
+            <input class="field-input" id="fieldDetail" maxlength="50" placeholder="e.g. 2–3 L">
+          </label>
+          <label class="form-label hidden" id="typeLabel">Response type
+            <select class="field-select" id="fieldType">
+              <option value="scale">0–10 scale</option>
+              <option value="yesno">Yes / No</option>
+              <option value="text">Short text</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary" id="cancelDialog">Cancel</button>
+          <button type="submit" class="btn">Save field</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="sectionDialog">
+    <form id="sectionForm">
+      <div class="modal-head">
+        <h2>Add a section</h2>
+        <button type="button" class="icon-btn close-section-dialog" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <label class="form-label">Section name
+            <input class="field-input" id="sectionName" required maxlength="40" placeholder="e.g. Feeding & pumping">
+          </label>
+          <label class="form-label">How items are recorded
+            <select class="field-select" id="sectionBehavior">
+              <option value="checklist">Checklist</option>
+              <option value="slider">0–10 sliders</option>
+              <option value="counter">Manual counters</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary close-section-dialog">Cancel</button>
+          <button type="submit" class="btn">Add section</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const IS_TEST_BUILD = location.pathname.includes("/test/");
+    const STORAGE_KEY = IS_TEST_BUILD ? "dayByDayRecovery.test.v1" : "dayByDayRecovery.v1";
+    const moods = ["", "😞", "😕", "😐", "🙂", "😊"];
+    const defaults = {
+      config: {
+        routine: [
+          { id: "r_iron", name: "Prescription iron", detail: "" },
+          { id: "r_prenatal", name: "Centrum prenatal", detail: "" },
+          { id: "r_egg", name: "1 egg", detail: "" },
+          { id: "r_toast", name: "Whole grain toast", detail: "" },
+          { id: "r_juice", name: "Orange juice", detail: "" },
+          { id: "r_water", name: "500 mL water", detail: "" }
+        ],
+        goals: [
+          { id: "g_water", name: "Total water", detail: "2–3 L" },
+          { id: "g_protein", name: "Protein at every meal", detail: "Yes" },
+          { id: "g_fruit", name: "Fruit", detail: "1+" },
+          { id: "g_veg", name: "Vegetables", detail: "1+" },
+          { id: "g_iv", name: "Liquid IV (if needed)", detail: "Optional" }
+        ],
+        metrics: [
+          { id: "m_energy", name: "Energy", type: "scale" },
+          { id: "m_pain", name: "Pain", type: "scale" },
+          { id: "m_sleep", name: "Sleep quality", type: "scale" },
+          { id: "m_aches", name: "Body aches", type: "scale" },
+          { id: "m_hydration", name: "Hydration okay?", type: "yesno" },
+          { id: "m_motrin", name: "Needed Motrin?", type: "yesno" }
+        ],
+        headings: {
+          routine: "Morning routine",
+          goals: "Daily goals",
+          metrics: "How you're feeling",
+          mood: "How’s your mood?",
+          notes: "Notes for today",
+          reminder: "A gentle reminder"
+        },
+        theme: {
+          primary: "#1f5962",
+          accent: "#e88373",
+          background: "#fbf8f2",
+          surface: "#fffefa",
+          text: "#18343b",
+          fontBody: "system",
+          fontDisplay: "serif"
+        },
+        sectionBehaviors: { routine: "checklist", goals: "checklist", metrics: "flexible" },
+        customSections: []
+      },
+      logs: {}
+    };
+
+    let state = loadState();
+    let selectedDate = todayKey();
+    let deferredInstallPrompt = null;
+    let editing = { section: null, id: null };
+
+    function clone(value) { return JSON.parse(JSON.stringify(value)); }
+    function normalizeState(saved) {
+      return {
+        config: {
+          ...clone(defaults.config),
+          ...(saved.config || {}),
+          headings: { ...defaults.config.headings, ...(saved.config?.headings || {}) },
+          theme: { ...defaults.config.theme, ...(saved.config?.theme || {}) },
+          sectionBehaviors: { ...defaults.config.sectionBehaviors, ...(saved.config?.sectionBehaviors || {}) },
+          customSections: Array.isArray(saved.config?.customSections) ? saved.config.customSections : []
+        },
+        logs: saved.logs || {}
+      };
+    }
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved?.config && saved?.logs) return normalizeState(saved);
+      } catch (_) {}
+      return clone(defaults);
+    }
+    function saveState(message) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (message) toast(message);
+    }
+    function todayKey() {
+      const d = new Date();
+      return localDateKey(d);
+    }
+    function localDateKey(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+    function dateFromKey(key) {
+      const [y, m, d] = key.split("-").map(Number);
+      return new Date(y, m - 1, d, 12);
+    }
+    function shiftDate(key, amount) {
+      const d = dateFromKey(key);
+      d.setDate(d.getDate() + amount);
+      return localDateKey(d);
+    }
+    function getLog(key = selectedDate) {
+      if (!state.logs[key]) state.logs[key] = { checks: {}, metrics: {}, counters: {}, mood: 0, notes: "" };
+      state.logs[key].checks ||= {};
+      state.logs[key].metrics ||= {};
+      state.logs[key].counters ||= {};
+      return state.logs[key];
+    }
+    function getCustomSection(id) { return state.config.customSections.find(section => section.id === id); }
+    function getSectionItems(section) {
+      return ["routine", "goals", "metrics"].includes(section) ? state.config[section] : (getCustomSection(section)?.items || []);
+    }
+    function getSectionBehavior(section) {
+      return ["routine", "goals", "metrics"].includes(section)
+        ? state.config.sectionBehaviors[section]
+        : (getCustomSection(section)?.behavior || "checklist");
+    }
+    function getSectionName(section) {
+      return ["routine", "goals", "metrics"].includes(section)
+        ? state.config.headings[section]
+        : (getCustomSection(section)?.name || "Custom section");
+    }
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
+    }
+    function uid(prefix) { return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`; }
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    const fontStacks = {
+      system: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      rounded: '"Arial Rounded MT Bold", "Trebuchet MS", ui-rounded, system-ui, sans-serif',
+      serif: 'Georgia, "Times New Roman", serif',
+      mono: '"SFMono-Regular", Consolas, "Liberation Mono", monospace'
+    };
+    const presets = {
+      calm: { primary:"#1f5962", accent:"#e88373", background:"#fbf8f2", surface:"#fffefa", text:"#18343b" },
+      rose: { primary:"#714552", accent:"#d9898f", background:"#fff7f5", surface:"#fffdfb", text:"#402c32" },
+      lavender: { primary:"#575174", accent:"#aa84b8", background:"#f8f6fb", surface:"#fffefe", text:"#353146" },
+      ocean: { primary:"#24506b", accent:"#e3a65f", background:"#f5f9fa", surface:"#ffffff", text:"#203b4b" }
+    };
+    function shadeHex(hex, amount) {
+      const value = parseInt(hex.slice(1), 16);
+      const clamp = n => Math.max(0, Math.min(255, n));
+      const r = clamp((value >> 16) + amount);
+      const g = clamp(((value >> 8) & 255) + amount);
+      const b = clamp((value & 255) + amount);
+      return `#${[r,g,b].map(n => n.toString(16).padStart(2,"0")).join("")}`;
+    }
+    function applyTheme() {
+      const theme = state.config.theme;
+      const root = document.documentElement.style;
+      root.setProperty("--teal", theme.primary);
+      root.setProperty("--teal-dark", shadeHex(theme.primary, -28));
+      root.setProperty("--coral", theme.accent);
+      root.setProperty("--cream", theme.background);
+      root.setProperty("--paper", theme.surface);
+      root.setProperty("--ink", theme.text);
+      root.setProperty("--font-body", fontStacks[theme.fontBody] || fontStacks.system);
+      root.setProperty("--font-display", fontStacks[theme.fontDisplay] || fontStacks.serif);
+    }
+    function renderHeadings() {
+      const h = state.config.headings;
+      const pairs = {
+        routineHeading: h.routine, goalsHeading: h.goals, metricsHeading: h.metrics,
+        moodHeading: h.mood, notesHeading: h.notes, reminderHeading: h.reminder,
+        manageRoutineHeading: h.routine, manageGoalsHeading: h.goals, manageMetricsHeading: h.metrics,
+        behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics
+      };
+      Object.entries(pairs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      });
+    }
+    function renderSettings() {
+      renderHeadings();
+      document.querySelectorAll(".heading-setting").forEach(input => {
+        input.value = state.config.headings[input.dataset.heading] || "";
+      });
+      document.querySelectorAll(".theme-setting").forEach(input => {
+        input.value = state.config.theme[input.dataset.theme];
+      });
+      document.querySelectorAll(".core-behavior").forEach(select => {
+        select.value = state.config.sectionBehaviors[select.dataset.section];
+      });
+      document.getElementById("customBehaviorList").innerHTML = state.config.customSections.map(section => `
+        <div class="behavior-row">
+          <div>
+            <input class="field-input custom-section-name" data-section-id="${section.id}" value="${escapeHtml(section.name)}" maxlength="40" aria-label="Custom section name">
+            <small>Custom section · ${section.items.length} item${section.items.length === 1 ? "" : "s"}</small>
+          </div>
+          <select class="field-select custom-behavior" data-section-id="${section.id}" aria-label="Section behaviour">
+            <option value="checklist" ${section.behavior === "checklist" ? "selected" : ""}>Checklist</option>
+            <option value="slider" ${section.behavior === "slider" ? "selected" : ""}>0–10 sliders</option>
+            <option value="counter" ${section.behavior === "counter" ? "selected" : ""}>Manual counters</option>
+          </select>
+          <button class="tiny-btn danger delete-section" data-section-id="${section.id}" title="Delete section">×</button>
+        </div>`).join("") || `<div class="empty">No custom sections yet.</div>`;
+    }
+
+    function renderToday() {
+      renderHeadings();
+      const date = dateFromKey(selectedDate);
+      const isToday = selectedDate === todayKey();
+      document.getElementById("datePrimary").textContent = isToday ? "Today" : date.toLocaleDateString([], { weekday: "long" });
+      document.getElementById("dateSecondary").textContent = date.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+      document.getElementById("nextDay").disabled = selectedDate >= todayKey();
+      document.getElementById("nextDay").style.opacity = selectedDate >= todayKey() ? ".35" : "1";
+      const hour = new Date().getHours();
+      document.getElementById("greeting").textContent = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+      const log = getLog();
+      renderSectionItems("routine", "routineItems", "routineCount", log);
+      renderSectionItems("goals", "goalItems", "goalCount", log);
+      renderCustomSections(log);
+      renderMetrics(log);
+      document.querySelectorAll(".mood-btn").forEach(btn => btn.classList.toggle("selected", Number(btn.dataset.mood) === Number(log.mood)));
+      document.getElementById("dailyNotes").value = log.notes || "";
+      updateProgress();
+    }
+
+    function renderSectionItems(section, containerId, countId, log) {
+      const items = getSectionItems(section);
+      const behavior = getSectionBehavior(section);
+      const container = document.getElementById(containerId);
+      const count = document.getElementById(countId);
+      if (!items.length) {
+        container.innerHTML = `<div class="empty">No items yet. Add one in Customize.</div>`;
+        if (count) count.textContent = "0 of 0";
+        return;
+      }
+      if (behavior === "checklist") {
+        container.innerHTML = items.map(item => `
+          <label class="check-item">
+            <input class="check-control daily-check" type="checkbox" data-id="${item.id}" ${log.checks[item.id] ? "checked" : ""}>
+            <span class="check-ui"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 4 4L19 7"/></svg></span>
+            <span class="item-copy"><strong>${escapeHtml(item.name)}</strong>${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}</span>
+            ${item.detail ? `<span class="target">${escapeHtml(item.detail)}</span>` : ""}
+          </label>`).join("");
+        if (count) count.textContent = `${items.filter(item => log.checks[item.id]).length} of ${items.length}`;
+      } else if (behavior === "slider") {
+        container.innerHTML = items.map(item => {
+          const value = log.metrics[item.id] === undefined || log.metrics[item.id] === "" ? 5 : Number(log.metrics[item.id]);
+          return `<div class="metric">
+            <div class="metric-label"><span>${escapeHtml(item.name)}</span><output id="out_${item.id}">${value}</output></div>
+            <input type="range" min="0" max="10" step="1" value="${value}" class="metric-input" data-id="${item.id}" data-scale="true">
+            <div class="scale"><span>0 · Low</span><span>10 · High</span></div>
+          </div>`;
+        }).join("");
+        if (count) count.textContent = `${items.filter(item => log.metrics[item.id] !== undefined && log.metrics[item.id] !== "").length} logged`;
+      } else {
+        container.innerHTML = items.map(item => `
+          <div class="counter-row">
+            <div class="item-copy"><strong>${escapeHtml(item.name)}</strong>${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}</div>
+            <div class="counter-control">
+              <button class="counter-btn" data-id="${item.id}" data-delta="-1" aria-label="Decrease ${escapeHtml(item.name)}">−</button>
+              <span class="counter-value" id="counter_${item.id}">${Number(log.counters[item.id] || 0)}</span>
+              <button class="counter-btn" data-id="${item.id}" data-delta="1" aria-label="Increase ${escapeHtml(item.name)}">+</button>
+            </div>
+          </div>`).join("");
+        if (count) count.textContent = `${items.reduce((sum, item) => sum + Number(log.counters[item.id] || 0), 0)} total`;
+      }
+    }
+
+    function renderCustomSections(log) {
+      const host = document.getElementById("customSectionsContainer");
+      host.innerHTML = state.config.customSections.map(section => `
+        <section class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <div class="section-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="9"/></svg></div>
+              <h2>${escapeHtml(section.name)}</h2>
+            </div>
+            <span class="count" id="count_${section.id}">0 of 0</span>
+          </div>
+          <div class="items" id="items_${section.id}"></div>
+        </section>`).join("");
+      state.config.customSections.forEach(section => renderSectionItems(section.id, `items_${section.id}`, `count_${section.id}`, log));
+    }
+
+    function renderMetrics(log) {
+      const container = document.getElementById("metricItems");
+      const items = state.config.metrics;
+      const count = document.getElementById("metricsCount");
+      if (getSectionBehavior("metrics") !== "flexible") {
+        count.classList.remove("hidden");
+        renderSectionItems("metrics", "metricItems", "metricsCount", log);
+        return;
+      }
+      count.classList.add("hidden");
+      if (!items.length) {
+        container.innerHTML = `<div class="empty">No check-ins yet. Add one in Customize.</div>`;
+        return;
+      }
+      container.innerHTML = items.map(item => {
+        const value = log.metrics[item.id];
+        if (item.type === "yesno") return `
+          <div class="metric">
+            <div class="metric-label"><span>${escapeHtml(item.name)}</span></div>
+            <select class="field-select metric-input" data-id="${item.id}">
+              <option value="" ${value == null || value === "" ? "selected" : ""}>Not answered</option>
+              <option value="Yes" ${value === "Yes" ? "selected" : ""}>Yes</option>
+              <option value="No" ${value === "No" ? "selected" : ""}>No</option>
+            </select>
+          </div>`;
+        if (item.type === "text") return `
+          <div class="metric">
+            <div class="metric-label"><span>${escapeHtml(item.name)}</span></div>
+            <input class="field-input metric-input" data-id="${item.id}" value="${escapeHtml(value || "")}" placeholder="Add a response">
+          </div>`;
+        const rangeValue = value === undefined || value === "" ? 5 : Number(value);
+        return `
+          <div class="metric">
+            <div class="metric-label"><span>${escapeHtml(item.name)}</span><output id="out_${item.id}">${rangeValue}</output></div>
+            <input type="range" min="0" max="10" step="1" value="${rangeValue}" class="metric-input" data-id="${item.id}" data-scale="true">
+            <div class="scale"><span>0 · Low</span><span>10 · High</span></div>
+          </div>`;
+      }).join("");
+    }
+
+    function updateProgress() {
+      const log = getLog();
+      const sections = ["routine", "goals", ...state.config.customSections.map(section => section.id)];
+      const all = sections.flatMap(section => getSectionItems(section).map(item => ({ item, behavior: getSectionBehavior(section) })));
+      const done = all.filter(({item, behavior}) =>
+        behavior === "checklist" ? log.checks[item.id] :
+        behavior === "slider" ? log.metrics[item.id] !== undefined && log.metrics[item.id] !== "" :
+        Number(log.counters[item.id] || 0) > 0
+      ).length;
+      const percent = all.length ? Math.round(done / all.length * 100) : 0;
+      document.getElementById("progressText").textContent = `${percent}%`;
+      document.getElementById("progressOrb").style.setProperty("--progress", `${percent * 3.6}deg`);
+    }
+
+    function renderHistory() {
+      const grid = document.getElementById("historyGrid");
+      const keys = Object.keys(state.logs).filter(key => {
+        const log = state.logs[key];
+        return log.mood || log.notes || Object.keys(log.checks || {}).some(k => log.checks[k]) ||
+          Object.keys(log.metrics || {}).length || Object.values(log.counters || {}).some(value => Number(value) > 0);
+      }).sort().reverse();
+      if (!keys.length) {
+        grid.innerHTML = `<div class="no-history" style="grid-column:1/-1"><div style="font-size:36px;margin-bottom:10px">🌱</div><strong>No entries yet</strong><br><small>Your first check-in will appear here.</small></div>`;
+        return;
+      }
+      grid.innerHTML = keys.map(key => {
+        const log = state.logs[key];
+        const trackedSections = ["routine", "goals", ...state.config.customSections.map(section => section.id)];
+        const trackedItems = trackedSections.flatMap(section => getSectionItems(section).map(item => ({ item, behavior:getSectionBehavior(section) })));
+        const total = trackedItems.length;
+        const done = trackedItems.filter(({item, behavior}) =>
+          behavior === "checklist" ? log.checks?.[item.id] :
+          behavior === "slider" ? log.metrics?.[item.id] !== undefined && log.metrics?.[item.id] !== "" :
+          Number(log.counters?.[item.id] || 0) > 0
+        ).length;
+        const percent = total ? Math.min(100, Math.round(done / total * 100)) : 0;
+        const date = dateFromKey(key);
+        const metricCount = Object.keys(log.metrics || {}).filter(k => log.metrics[k] !== "").length;
+        return `<article class="day-card" data-date="${key}">
+          <header><strong>${date.toLocaleDateString([], { month:"short", day:"numeric" })}</strong><span class="mood">${moods[log.mood] || "·"}</span></header>
+          <div class="mini-bar"><span style="width:${percent}%"></span></div>
+          <div class="day-meta"><span>${done} tasks</span><span>${metricCount} check-ins</span></div>
+          ${log.notes ? `<p style="font-size:12px;color:var(--muted);margin:12px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(log.notes)}</p>` : ""}
+        </article>`;
+      }).join("");
+    }
+
+    function renderManage() {
+      renderHeadings();
+      renderManageSection("routine", "manageRoutine");
+      renderManageSection("goals", "manageGoals");
+      renderManageSection("metrics", "manageMetrics");
+      document.getElementById("manageCustomSections").innerHTML = state.config.customSections.map(section => `
+        <section class="card manage-card">
+          <div class="manage-head">
+            <div><h2>${escapeHtml(section.name)}</h2><small style="color:var(--muted)">${behaviorLabel(section.behavior)}</small></div>
+            <button class="btn secondary add-field" data-section="${section.id}">+ Add</button>
+          </div>
+          <div class="manage-list" id="manage_${section.id}"></div>
+        </section>`).join("");
+      state.config.customSections.forEach(section => renderManageSection(section.id, `manage_${section.id}`));
+    }
+    function behaviorLabel(behavior) {
+      return ({ flexible:"Flexible fields", checklist:"Checklist", slider:"0–10 sliders", counter:"Manual counters" })[behavior] || "Checklist";
+    }
+    function renderManageSection(section, id) {
+      const labels = { scale: "0–10 scale", yesno: "Yes / No", text: "Short text" };
+      const el = document.getElementById(id);
+      const items = getSectionItems(section);
+      if (!items.length) {
+        el.innerHTML = `<div class="empty">Nothing here yet.</div>`;
+        return;
+      }
+      const flexible = section === "metrics" && getSectionBehavior(section) === "flexible";
+      el.innerHTML = items.map(item => `
+        <div class="manage-row">
+          <div><strong>${escapeHtml(item.name)}</strong><small>${flexible ? labels[item.type] : escapeHtml(item.detail || behaviorLabel(getSectionBehavior(section)))}</small></div>
+          <div class="row-actions">
+            <button class="tiny-btn edit-field" data-section="${section}" data-id="${item.id}" title="Edit">✎</button>
+            <button class="tiny-btn danger delete-field" data-section="${section}" data-id="${item.id}" title="Delete">×</button>
+          </div>
+        </div>`).join("");
+    }
+
+    function openFieldDialog(section, id = null) {
+      editing = { section, id };
+      const item = id ? getSectionItems(section).find(x => x.id === id) : null;
+      const flexible = section === "metrics" && getSectionBehavior(section) === "flexible";
+      document.getElementById("dialogTitle").textContent = item ? "Edit field" : "Add a field";
+      document.getElementById("fieldName").value = item?.name || "";
+      document.getElementById("fieldDetail").value = item?.detail || "";
+      document.getElementById("fieldType").value = item?.type || "scale";
+      document.getElementById("typeLabel").classList.toggle("hidden", !flexible);
+      document.getElementById("detailLabel").classList.toggle("hidden", flexible);
+      document.getElementById("fieldDialog").showModal();
+      setTimeout(() => document.getElementById("fieldName").focus(), 50);
+    }
+    function closeDialog() { document.getElementById("fieldDialog").close(); }
+
+    document.addEventListener("change", event => {
+      if (event.target.matches(".daily-check")) {
+        getLog().checks[event.target.dataset.id] = event.target.checked;
+        saveState();
+        updateProgress();
+      }
+      if (event.target.matches(".metric-input")) {
+        getLog().metrics[event.target.dataset.id] = event.target.value;
+        saveState();
+        updateProgress();
+      }
+      if (event.target.matches(".core-behavior")) {
+        state.config.sectionBehaviors[event.target.dataset.section] = event.target.value;
+        saveState("Section behaviour updated");
+        renderToday();
+      }
+      if (event.target.matches(".custom-behavior")) {
+        const section = getCustomSection(event.target.dataset.sectionId);
+        if (section) section.behavior = event.target.value;
+        saveState("Section behaviour updated");
+        renderToday();
+      }
+    });
+    document.addEventListener("input", event => {
+      if (event.target.matches(".metric-input[data-scale]")) {
+        document.getElementById(`out_${event.target.dataset.id}`).textContent = event.target.value;
+        getLog().metrics[event.target.dataset.id] = event.target.value;
+        saveState();
+        updateProgress();
+      }
+      if (event.target.matches(".custom-section-name")) {
+        const section = getCustomSection(event.target.dataset.sectionId);
+        if (section && event.target.value.trim()) section.name = event.target.value.trim();
+        saveState();
+        renderToday();
+      }
+    });
+    document.getElementById("dailyNotes").addEventListener("input", event => {
+      getLog().notes = event.target.value;
+      saveState();
+    });
+    document.getElementById("moodGrid").addEventListener("click", event => {
+      const btn = event.target.closest(".mood-btn");
+      if (!btn) return;
+      getLog().mood = Number(btn.dataset.mood);
+      saveState();
+      document.querySelectorAll(".mood-btn").forEach(b => b.classList.toggle("selected", b === btn));
+    });
+    document.getElementById("prevDay").addEventListener("click", () => { selectedDate = shiftDate(selectedDate, -1); renderToday(); });
+    document.getElementById("nextDay").addEventListener("click", () => {
+      if (selectedDate < todayKey()) { selectedDate = shiftDate(selectedDate, 1); renderToday(); }
+    });
+
+    document.querySelector(".nav").addEventListener("click", event => {
+      const btn = event.target.closest(".nav-btn");
+      if (!btn) return;
+      document.querySelectorAll(".nav-btn").forEach(x => x.classList.toggle("active", x === btn));
+      document.querySelectorAll(".panel").forEach(x => x.classList.toggle("active", x.id === btn.dataset.panel));
+      if (btn.dataset.panel === "historyPanel") renderHistory();
+      if (btn.dataset.panel === "customizePanel") renderManage();
+      if (btn.dataset.panel === "settingsPanel") renderSettings();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.getElementById("historyGrid").addEventListener("click", event => {
+      const card = event.target.closest(".day-card");
+      if (!card) return;
+      selectedDate = card.dataset.date;
+      document.querySelector('[data-panel="todayPanel"]').click();
+      renderToday();
+    });
+    document.addEventListener("click", event => {
+      const counter = event.target.closest(".counter-btn");
+      if (counter) {
+        const log = getLog();
+        const id = counter.dataset.id;
+        log.counters[id] = Math.max(0, Number(log.counters[id] || 0) + Number(counter.dataset.delta));
+        saveState();
+        renderToday();
+      }
+      const add = event.target.closest(".add-field");
+      if (add) openFieldDialog(add.dataset.section);
+      const edit = event.target.closest(".edit-field");
+      if (edit) openFieldDialog(edit.dataset.section, edit.dataset.id);
+      const del = event.target.closest(".delete-field");
+      if (del) {
+        const items = getSectionItems(del.dataset.section);
+        const item = items.find(x => x.id === del.dataset.id);
+        if (confirm(`Remove “${item.name}” from the plan? Past logs will remain in your backup.`)) {
+          if (["routine","goals","metrics"].includes(del.dataset.section)) {
+            state.config[del.dataset.section] = items.filter(x => x.id !== del.dataset.id);
+          } else {
+            getCustomSection(del.dataset.section).items = items.filter(x => x.id !== del.dataset.id);
+          }
+          saveState("Field removed");
+          renderManage();
+          renderToday();
+        }
+      }
+      const deleteSection = event.target.closest(".delete-section");
+      if (deleteSection) {
+        const section = getCustomSection(deleteSection.dataset.sectionId);
+        if (section && confirm(`Delete the “${section.name}” section? Past log values remain in backups.`)) {
+          state.config.customSections = state.config.customSections.filter(item => item.id !== section.id);
+          saveState("Section removed");
+          renderSettings();
+          renderManage();
+          renderToday();
+        }
+      }
+    });
+    document.getElementById("fieldForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const name = document.getElementById("fieldName").value.trim();
+      if (!name) return;
+      const section = editing.section;
+      const items = getSectionItems(section);
+      const flexible = section === "metrics" && getSectionBehavior(section) === "flexible";
+      if (editing.id) {
+        const item = items.find(x => x.id === editing.id);
+        item.name = name;
+        if (flexible) item.type = document.getElementById("fieldType").value;
+        else item.detail = document.getElementById("fieldDetail").value.trim();
+      } else {
+        const item = { id: uid("i"), name };
+        if (flexible) item.type = document.getElementById("fieldType").value;
+        else item.detail = document.getElementById("fieldDetail").value.trim();
+        items.push(item);
+      }
+      saveState(editing.id ? "Field updated" : "Field added");
+      closeDialog();
+      renderManage();
+      renderToday();
+    });
+    document.getElementById("closeDialog").addEventListener("click", closeDialog);
+    document.getElementById("cancelDialog").addEventListener("click", closeDialog);
+
+    function download(name, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+    }
+    document.getElementById("backupBtn").addEventListener("click", () => {
+      download(`recovery-backup-${todayKey()}.json`, JSON.stringify(state, null, 2), "application/json");
+      toast("Backup downloaded");
+    });
+    document.getElementById("restoreBtn").addEventListener("click", () => document.getElementById("restoreInput").click());
+    document.getElementById("restoreInput").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const restored = JSON.parse(await file.text());
+        if (!restored.config || !restored.logs) throw new Error("Invalid backup");
+        state = normalizeState(restored);
+        saveState("Backup restored");
+        renderToday(); renderManage();
+      } catch (_) { toast("That backup could not be read"); }
+      event.target.value = "";
+    });
+    document.getElementById("csvBtn").addEventListener("click", () => {
+      const sectionKeys = ["routine", "goals", "metrics", ...state.config.customSections.map(section => section.id)];
+      const columns = sectionKeys.flatMap(section => getSectionItems(section).map(item => ({
+        item, behavior: getSectionBehavior(section), sectionName: getSectionName(section)
+      })));
+      const header = ["Date", "Mood", "Completed tasks", "Notes", ...columns.map(column => `${column.sectionName}: ${column.item.name}`)];
+      const csvCell = value => `"${String(value ?? "").replace(/"/g, '""')}"`;
+      const rows = Object.keys(state.logs).sort().map(key => {
+        const log = state.logs[key];
+        const done = Object.values(log.checks || {}).filter(Boolean).length;
+        return [key, moods[log.mood] || "", done, log.notes || "", ...columns.map(({item, behavior}) =>
+          behavior === "checklist" ? (log.checks?.[item.id] ? "Yes" : "") :
+          behavior === "counter" ? (log.counters?.[item.id] ?? 0) :
+          (log.metrics?.[item.id] ?? "")
+        )];
+      });
+      download(`recovery-log-${todayKey()}.csv`, [header, ...rows].map(r => r.map(csvCell).join(",")).join("\n"), "text/csv;charset=utf-8");
+      toast("CSV exported");
+    });
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (confirm("Reset the plan and permanently erase all entries on this device? Download a backup first if you may need them.")) {
+        state = clone(defaults);
+        saveState("App reset");
+        selectedDate = todayKey();
+        renderToday(); renderManage();
+      }
+    });
+    document.querySelectorAll(".heading-setting").forEach(input => input.addEventListener("input", event => {
+      const value = event.target.value.trim();
+      state.config.headings[event.target.dataset.heading] = value || defaults.config.headings[event.target.dataset.heading];
+      saveState();
+      renderHeadings();
+    }));
+    document.querySelectorAll(".theme-setting").forEach(input => input.addEventListener("input", event => {
+      state.config.theme[event.target.dataset.theme] = event.target.value;
+      saveState();
+      applyTheme();
+    }));
+    document.querySelectorAll(".preset-btn").forEach(button => button.addEventListener("click", () => {
+      state.config.theme = { ...state.config.theme, ...presets[button.dataset.preset] };
+      saveState("Palette applied");
+      applyTheme();
+      renderSettings();
+    }));
+    document.getElementById("resetAppearance").addEventListener("click", () => {
+      state.config.theme = clone(defaults.config.theme);
+      saveState("Appearance reset");
+      applyTheme();
+      renderSettings();
+    });
+    document.getElementById("addSectionBtn").addEventListener("click", () => {
+      document.getElementById("sectionName").value = "";
+      document.getElementById("sectionBehavior").value = "checklist";
+      document.getElementById("sectionDialog").showModal();
+      setTimeout(() => document.getElementById("sectionName").focus(), 50);
+    });
+    document.querySelectorAll(".close-section-dialog").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("sectionDialog").close();
+    }));
+    document.getElementById("sectionForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const name = document.getElementById("sectionName").value.trim();
+      if (!name) return;
+      state.config.customSections.push({
+        id: uid("section"),
+        name,
+        behavior: document.getElementById("sectionBehavior").value,
+        items: []
+      });
+      saveState("Section added");
+      document.getElementById("sectionDialog").close();
+      renderSettings();
+      renderManage();
+      renderToday();
+    });
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      document.getElementById("installBtn").classList.remove("hidden");
+    });
+    document.getElementById("installBtn").addEventListener("click", async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      } else {
+        toast("Use your browser menu, then “Add to Home Screen”");
+      }
+    });
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    applyTheme();
+    renderToday();
+  </script>
+</body>
+</html>
