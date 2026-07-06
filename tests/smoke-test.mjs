@@ -13,7 +13,11 @@ const requiredMarkup = [
   'id="settingsPanel"',
   'id="addSectionBtn"',
   'id="customSectionsContainer"',
-  'class="counter-btn"',
+  'class="counter-btn counter-minus"',
+  'class="counter-btn counter-plus"',
+  'ensureCounterItem(section)',
+  'id="reminderMessage"',
+  'data-copy="reminderText"',
   'data-panel="settingsPanel"'
 ];
 
