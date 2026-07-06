@@ -608,7 +608,8 @@
   </dialog>
 
   <script>
-    const STORAGE_KEY = "dayByDayRecovery.v1";
+    const IS_TEST_BUILD = location.pathname.includes("/test/");
+    const STORAGE_KEY = IS_TEST_BUILD ? "dayByDayRecovery.test.v1" : "dayByDayRecovery.v1";
     const moods = ["", "😞", "😕", "😐", "🙂", "😊"];
     const defaults = {
       config: {
