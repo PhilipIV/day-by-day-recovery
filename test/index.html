@@ -227,6 +227,17 @@
     .appointment-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 13px; color: var(--muted); font-size: 12px; text-align: center; }
     .appointment-form { display: grid; grid-template-columns: 125px 1fr auto; gap: 8px; align-items: end; }
     .calendar-note { min-height: 76px; }
+    .calendar-reminder-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .calendar-reminder-head h3 { margin: 0; }
+    .calendar-reminder-list { display: grid; gap: 8px; }
+    .calendar-reminder-item {
+      width: 100%; display: grid; gap: 3px; border: 1px solid var(--line); border-radius: 13px;
+      padding: 11px 12px; background: var(--mint-soft); color: var(--ink); text-align: left; cursor: pointer;
+    }
+    .calendar-reminder-item:hover { border-color: var(--teal); background: var(--mint); }
+    .calendar-reminder-item strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+    .calendar-reminder-date { color: var(--teal); font-size: 11px; font-weight: 850; }
+    .calendar-reminder-empty { color: var(--muted); font-size: 12px; line-height: 1.5; }
 
     .settings-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
     .manage-card { padding: 20px; }
@@ -434,6 +445,14 @@
             <h3 id="notesHeading">Notes for today</h3>
             <p>Anything you want to remember or discuss.</p>
             <textarea class="notes" id="dailyNotes" placeholder="A win, a concern, a question…"></textarea>
+          </section>
+
+          <section class="card side-card">
+            <div class="calendar-reminder-head">
+              <h3>Calendar reminders</h3>
+              <button class="tiny-btn" id="openCalendarFromToday">Open calendar</button>
+            </div>
+            <div class="calendar-reminder-list" id="calendarReminderList"></div>
           </section>
 
           <section class="card side-card tip">
@@ -976,6 +995,7 @@
       renderSectionItems("goals", "goalItems", "goalCount", log);
       renderCustomSections(log);
       renderMetrics(log);
+      renderUpcomingReminders();
       document.querySelectorAll(".mood-btn").forEach(btn => btn.classList.toggle("selected", Number(btn.dataset.mood) === Number(log.mood)));
       document.getElementById("dailyNotes").value = log.notes || "";
       updateProgress();
@@ -1108,6 +1128,50 @@
     function calendarHasEntry(key) {
       const day = state.calendar?.[key];
       return logHasEntry(state.logs[key]) || Boolean(day && (day.note?.trim() || day.appointments?.length));
+    }
+
+    function upcomingCalendarItems(limit = 3) {
+      const today = todayKey();
+      return Object.entries(state.calendar || {})
+        .filter(([key]) => key >= today)
+        .flatMap(([key, day]) => [
+          ...(day.appointments || []).map(appointment => ({
+            date: key,
+            time: appointment.time || "",
+            title: appointment.title,
+            kind: "appointment"
+          })),
+          ...(day.note?.trim() ? [{
+            date: key,
+            time: "",
+            title: day.note.trim(),
+            kind: "note"
+          }] : [])
+        ])
+        .sort((a, b) =>
+          a.date.localeCompare(b.date) ||
+          (a.time || "99:99").localeCompare(b.time || "99:99") ||
+          a.kind.localeCompare(b.kind)
+        )
+        .slice(0, limit);
+    }
+
+    function calendarDateLabel(key) {
+      if (key === todayKey()) return "Today";
+      if (key === shiftDate(todayKey(), 1)) return "Tomorrow";
+      return dateFromKey(key).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    }
+
+    function renderUpcomingReminders() {
+      const list = document.getElementById("calendarReminderList");
+      const items = upcomingCalendarItems();
+      list.innerHTML = items.length
+        ? items.map(item => `
+          <button class="calendar-reminder-item" data-date="${item.date}">
+            <span class="calendar-reminder-date">${escapeHtml(calendarDateLabel(item.date))}${item.time ? ` · ${escapeHtml(formatAppointmentTime(item.time))}` : " · Note"}</span>
+            <strong>${escapeHtml(item.title)}</strong>
+          </button>`).join("")
+        : `<div class="calendar-reminder-empty">Nothing scheduled yet. Add an appointment or dated note in Calendar.</div>`;
     }
 
     function formatAppointmentTime(value) {
@@ -1347,6 +1411,7 @@
     document.getElementById("calendarDayNote").addEventListener("input", event => {
       getCalendarDay().note = event.target.value;
       saveState();
+      renderUpcomingReminders();
     });
     document.getElementById("appointmentForm").addEventListener("submit", event => {
       event.preventDefault();
@@ -1362,6 +1427,7 @@
       document.getElementById("appointmentTime").value = "";
       renderAppointments();
       renderCalendar();
+      renderUpcomingReminders();
     });
     document.getElementById("appointmentList").addEventListener("click", event => {
       const remove = event.target.closest(".delete-appointment");
@@ -1371,12 +1437,20 @@
       saveState("Appointment removed");
       renderAppointments();
       renderCalendar();
+      renderUpcomingReminders();
     });
     document.getElementById("openDailyForm").addEventListener("click", () => {
       selectedDate = calendarEditingDate;
       document.getElementById("calendarDayDialog").close();
       document.querySelector('[data-panel="todayPanel"]').click();
       renderToday();
+    });
+    document.getElementById("calendarReminderList").addEventListener("click", event => {
+      const reminder = event.target.closest(".calendar-reminder-item");
+      if (reminder) openCalendarDay(reminder.dataset.date);
+    });
+    document.getElementById("openCalendarFromToday").addEventListener("click", () => {
+      document.querySelector('[data-panel="calendarPanel"]').click();
     });
     document.addEventListener("click", event => {
       const counter = event.target.closest(".counter-btn");
