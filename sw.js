@@ -1,4 +1,4 @@
-const CACHE = "day-by-day-v2";
+const CACHE = "day-by-day-v3";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", event => {
