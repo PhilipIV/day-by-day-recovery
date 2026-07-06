@@ -130,17 +130,25 @@
     input[type="range"] { width: 100%; accent-color: var(--coral); }
     .scale { display: flex; justify-content: space-between; color: #8a9b99; font-size: 10px; margin-top: 4px; }
     .counter-row {
-      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px;
-      padding: 11px 9px; min-height: 62px; border-bottom: 1px solid var(--line);
+      display: grid; gap: 14px;
+      padding: 14px 9px 18px; border-bottom: 1px solid var(--line);
     }
     .counter-row:last-child { border-bottom: 0; }
-    .counter-control { display: flex; align-items: center; gap: 9px; }
+    .counter-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .counter-control { display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 10px; }
     .counter-btn {
-      width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 11px; background: white;
-      color: var(--teal); font-size: 20px; font-weight: 800; cursor: pointer;
+      border: 1px solid var(--line); border-radius: 15px; cursor: pointer; font-weight: 850;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
     }
-    .counter-btn:hover { background: var(--mint-soft); border-color: var(--teal); }
-    .counter-value { min-width: 32px; text-align: center; font-family: var(--font-display); font-size: 23px; font-weight: 700; }
+    .counter-btn:active { transform: scale(.98); }
+    .counter-minus { min-height: 64px; background: white; color: var(--teal); font-size: 28px; }
+    .counter-minus:hover { background: var(--mint-soft); border-color: var(--teal); }
+    .counter-plus {
+      min-height: 86px; border-color: var(--teal); background: var(--teal); color: white;
+      font-size: 46px; line-height: 1;
+    }
+    .counter-plus:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
+    .counter-value { min-width: 48px; text-align: right; font-family: var(--font-display); color: var(--teal); font-size: 34px; font-weight: 750; }
     .field-input, .field-select, .notes {
       width: 100%; border: 1px solid var(--line); background: white; color: var(--ink); border-radius: 13px;
       padding: 11px 12px; outline: none; transition: border .18s, box-shadow .18s;
@@ -390,7 +398,7 @@
 
           <section class="card side-card tip">
             <h3 id="reminderHeading">A gentle reminder</h3>
-            <p>This tracker supports—not replaces—medical care. Seek urgent help for severe bleeding, chest pain, trouble breathing, seizures, or thoughts of harming yourself or your baby.</p>
+            <p id="reminderMessage">Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.</p>
           </section>
         </aside>
       </div>
@@ -490,6 +498,10 @@
             <div class="behavior-row card-name-row">
               <div><strong id="settingReminderName">A gentle reminder</strong><small>Reminder card</small></div>
               <button class="tiny-btn edit-section-name" data-heading="reminder" title="Rename card" aria-label="Rename reminder card">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingReminderText">Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.</strong><small>Reminder message</small></div>
+              <button class="tiny-btn edit-section-name" data-copy="reminderText" title="Edit reminder message" aria-label="Edit reminder message">✎</button>
             </div>
           </div>
         </section>
@@ -607,8 +619,9 @@
         <button type="button" class="icon-btn close-rename-dialog" aria-label="Close">×</button>
       </div>
       <div class="modal-body">
-        <label class="form-label">Name
+        <label class="form-label"><span id="renameFieldLabel">Name</span>
           <input class="field-input" id="renameSectionInput" required maxlength="40">
+          <textarea class="notes hidden" id="renameCopyInput" maxlength="240"></textarea>
         </label>
         <div class="modal-actions">
           <button type="button" class="btn secondary close-rename-dialog">Cancel</button>
@@ -655,6 +668,7 @@
           notes: "Notes for today",
           reminder: "A gentle reminder"
         },
+        reminderText: "Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.",
         theme: {
           primary: "#1f5962",
           accent: "#e88373",
@@ -674,10 +688,12 @@
     let selectedDate = todayKey();
     let deferredInstallPrompt = null;
     let editing = { section: null, id: null };
-    let renaming = { heading: null, sectionId: null };
+    let renaming = { heading: null, sectionId: null, copy: null };
 
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
     function normalizeState(saved) {
+      const customSections = Array.isArray(saved.config?.customSections) ? clone(saved.config.customSections) : [];
+      customSections.forEach(ensureCounterItem);
       return {
         config: {
           ...clone(defaults.config),
@@ -685,7 +701,7 @@
           headings: { ...defaults.config.headings, ...(saved.config?.headings || {}) },
           theme: { ...defaults.config.theme, ...(saved.config?.theme || {}) },
           sectionBehaviors: { ...defaults.config.sectionBehaviors, ...(saved.config?.sectionBehaviors || {}) },
-          customSections: Array.isArray(saved.config?.customSections) ? saved.config.customSections : []
+          customSections
         },
         logs: saved.logs || {}
       };
@@ -745,6 +761,18 @@
       return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
     }
     function uid(prefix) { return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`; }
+    function ensureCounterItem(section) {
+      if (section?.behavior !== "counter") return;
+      if (!Array.isArray(section.items)) section.items = [];
+      if (!section.items.length) {
+        section.items.push({
+          id: `counter_${section.id}`,
+          name: section.name || "Count",
+          detail: "",
+          auto: true
+        });
+      }
+    }
     function toast(message) {
       const el = document.getElementById("toast");
       el.textContent = message;
@@ -792,7 +820,8 @@
         moodHeading: h.mood, notesHeading: h.notes, reminderHeading: h.reminder,
         manageRoutineHeading: h.routine, manageGoalsHeading: h.goals, manageMetricsHeading: h.metrics,
         behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics,
-        settingMoodName: h.mood, settingNotesName: h.notes, settingReminderName: h.reminder
+        settingMoodName: h.mood, settingNotesName: h.notes, settingReminderName: h.reminder,
+        reminderMessage: state.config.reminderText, settingReminderText: state.config.reminderText
       };
       Object.entries(pairs).forEach(([id, value]) => {
         const el = document.getElementById(id);
@@ -878,11 +907,13 @@
       } else {
         container.innerHTML = items.map(item => `
           <div class="counter-row">
-            <div class="item-copy"><strong>${escapeHtml(item.name)}</strong>${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}</div>
-            <div class="counter-control">
-              <button class="counter-btn" data-id="${item.id}" data-delta="-1" aria-label="Decrease ${escapeHtml(item.name)}">−</button>
+            <div class="counter-summary">
+              <div class="item-copy"><strong>${escapeHtml(item.name)}</strong>${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}</div>
               <span class="counter-value" id="counter_${item.id}">${Number(log.counters[item.id] || 0)}</span>
-              <button class="counter-btn" data-id="${item.id}" data-delta="1" aria-label="Increase ${escapeHtml(item.name)}">+</button>
+            </div>
+            <div class="counter-control">
+              <button class="counter-btn counter-minus" data-id="${item.id}" data-delta="-1" aria-label="Decrease ${escapeHtml(item.name)}">−</button>
+              <button class="counter-btn counter-plus" data-id="${item.id}" data-delta="1" aria-label="Increase ${escapeHtml(item.name)}">+</button>
             </div>
           </div>`).join("");
         if (count) count.textContent = `${items.reduce((sum, item) => sum + Number(log.counters[item.id] || 0), 0)} total`;
@@ -1062,8 +1093,13 @@
       }
       if (event.target.matches(".custom-behavior")) {
         const section = getCustomSection(event.target.dataset.sectionId);
-        if (section) section.behavior = event.target.value;
+        if (section) {
+          section.behavior = event.target.value;
+          ensureCounterItem(section);
+        }
         saveState("Section behaviour updated");
+        renderSettings();
+        renderManage();
         renderToday();
       }
     });
@@ -1129,7 +1165,9 @@
           if (["routine","goals","metrics"].includes(del.dataset.section)) {
             state.config[del.dataset.section] = items.filter(x => x.id !== del.dataset.id);
           } else {
-            getCustomSection(del.dataset.section).items = items.filter(x => x.id !== del.dataset.id);
+            const section = getCustomSection(del.dataset.section);
+            section.items = items.filter(x => x.id !== del.dataset.id);
+            ensureCounterItem(section);
           }
           saveState("Field removed");
           renderManage();
@@ -1149,15 +1187,22 @@
       }
       const rename = event.target.closest(".edit-section-name");
       if (rename) {
-        renaming = { heading: rename.dataset.heading || null, sectionId: rename.dataset.sectionId || null };
-        const currentName = renaming.heading
+        renaming = { heading: rename.dataset.heading || null, sectionId: rename.dataset.sectionId || null, copy: rename.dataset.copy || null };
+        const currentName = renaming.copy
+          ? state.config[renaming.copy]
+          : renaming.heading
           ? state.config.headings[renaming.heading]
           : getCustomSection(renaming.sectionId)?.name;
-        document.getElementById("renameSectionTitle").textContent = renaming.heading && ["mood","notes","reminder"].includes(renaming.heading)
-          ? "Rename card" : "Rename section";
+        document.getElementById("renameSectionTitle").textContent = renaming.copy
+          ? "Edit reminder message"
+          : renaming.heading && ["mood","notes","reminder"].includes(renaming.heading) ? "Rename card" : "Rename section";
+        document.getElementById("renameFieldLabel").textContent = renaming.copy ? "Message" : "Name";
         document.getElementById("renameSectionInput").value = currentName || "";
+        document.getElementById("renameCopyInput").value = currentName || "";
+        document.getElementById("renameSectionInput").classList.toggle("hidden", Boolean(renaming.copy));
+        document.getElementById("renameCopyInput").classList.toggle("hidden", !renaming.copy);
         document.getElementById("renameSectionDialog").showModal();
-        setTimeout(() => document.getElementById("renameSectionInput").focus(), 50);
+        setTimeout(() => (renaming.copy ? document.getElementById("renameCopyInput") : document.getElementById("renameSectionInput")).focus(), 50);
       }
     });
     document.getElementById("fieldForm").addEventListener("submit", event => {
@@ -1267,12 +1312,14 @@
       event.preventDefault();
       const name = document.getElementById("sectionName").value.trim();
       if (!name) return;
-      state.config.customSections.push({
+      const section = {
         id: uid("section"),
         name,
         behavior: document.getElementById("sectionBehavior").value,
         items: []
-      });
+      };
+      ensureCounterItem(section);
+      state.config.customSections.push(section);
       saveState("Section added");
       document.getElementById("sectionDialog").close();
       renderSettings();
@@ -1284,12 +1331,17 @@
     }));
     document.getElementById("renameSectionForm").addEventListener("submit", event => {
       event.preventDefault();
-      const name = document.getElementById("renameSectionInput").value.trim();
+      const name = (renaming.copy ? document.getElementById("renameCopyInput") : document.getElementById("renameSectionInput")).value.trim();
       if (!name) return;
-      if (renaming.heading) state.config.headings[renaming.heading] = name;
+      if (renaming.copy) state.config[renaming.copy] = name;
+      else if (renaming.heading) state.config.headings[renaming.heading] = name;
       else {
         const section = getCustomSection(renaming.sectionId);
-        if (section) section.name = name;
+        if (section) {
+          section.name = name;
+          const automaticCounter = section.items?.find(item => item.auto);
+          if (automaticCounter) automaticCounter.name = name;
+        }
       }
       saveState("Name updated");
       document.getElementById("renameSectionDialog").close();
