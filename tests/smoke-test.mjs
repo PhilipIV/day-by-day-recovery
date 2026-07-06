@@ -14,6 +14,8 @@ const requiredMarkup = [
   'id="calendarDayDialog"',
   'id="appointmentForm"',
   'id="calendarDayNote"',
+  'id="calendarReminderList"',
+  'id="openCalendarFromToday"',
   'id="customizePanel"',
   'id="settingsPanel"',
   'id="addSectionBtn"',
@@ -26,6 +28,7 @@ const requiredMarkup = [
   'data-panel="calendarPanel"',
   'function renderCalendar()',
   'function openCalendarDay(key)',
+  'function renderUpcomingReminders()',
   'data-panel="settingsPanel"'
 ];
 
