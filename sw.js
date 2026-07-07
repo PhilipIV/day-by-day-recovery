@@ -1,5 +1,5 @@
 const SCOPE_KEY = new URL(self.registration.scope).pathname.replace(/\W/g, "_") || "root";
-const CACHE = `day-by-day-v10-${SCOPE_KEY}`;
+const CACHE = `day-by-day-v12-${SCOPE_KEY}`;
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", event => {
