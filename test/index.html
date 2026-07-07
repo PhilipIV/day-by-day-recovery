@@ -227,8 +227,13 @@
     .appointment-empty { padding: 14px; border: 1px dashed var(--line); border-radius: 13px; color: var(--muted); font-size: 12px; text-align: center; }
     .appointment-form { display: grid; grid-template-columns: 125px 1fr auto; gap: 8px; align-items: end; }
     .calendar-note { min-height: 76px; }
-    .calendar-reminder-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-    .calendar-reminder-head h3 { margin: 0; }
+    .calendar-reminder-head { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 10px; margin-bottom: 10px; }
+    .calendar-reminder-head h3 { margin: 0; font-size: 18px; line-height: 1.08; letter-spacing: -.01em; }
+    .calendar-reminder-open {
+      border: 0; border-radius: 999px; padding: 8px 11px; background: var(--mint); color: var(--teal);
+      cursor: pointer; font-weight: 850; font-size: 12px; line-height: 1; white-space: nowrap;
+    }
+    .calendar-reminder-open:hover { background: var(--mint-soft); color: var(--ink); }
     .calendar-reminder-list { display: grid; gap: 8px; }
     .calendar-reminder-item {
       width: 100%; display: grid; gap: 3px; border: 1px solid var(--line); border-radius: 13px;
@@ -364,9 +369,9 @@
     <section class="panel active" id="todayPanel">
       <div class="hero">
         <div>
-          <div class="eyebrow">30-day recovery plan</div>
+          <div class="eyebrow" id="heroEyebrow">30-day recovery plan</div>
           <h1 id="greeting">Good morning</h1>
-          <p>Small steps count. Be gentle with yourself today.</p>
+          <p id="heroSubtitle">Small steps count. Be gentle with yourself today.</p>
         </div>
         <div class="progress-orb" id="progressOrb">
           <div><strong id="progressText">0%</strong><span>complete</span></div>
@@ -450,7 +455,7 @@
           <section class="card side-card">
             <div class="calendar-reminder-head">
               <h3>Calendar reminders</h3>
-              <button class="tiny-btn" id="openCalendarFromToday">Open calendar</button>
+              <button class="calendar-reminder-open" id="openCalendarFromToday">Open calendar</button>
             </div>
             <div class="calendar-reminder-list" id="calendarReminderList"></div>
           </section>
@@ -564,6 +569,21 @@
             </div>
           </div>
           <div class="behavior-list" id="customBehaviorList" style="margin-top:10px"></div>
+          <h3 style="font-family:var(--font-display);margin:22px 0 10px">Front page header</h3>
+          <div class="behavior-list">
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingHeroEyebrow">30-day recovery plan</strong><small>Small label above the main title</small></div>
+              <button class="tiny-btn edit-section-name" data-copy="heroEyebrow" title="Edit header label" aria-label="Edit header label">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingHeroTitle">Automatic greeting</strong><small>Main title. Leave blank to use morning/afternoon/evening.</small></div>
+              <button class="tiny-btn edit-section-name" data-copy="heroTitle" title="Edit header title" aria-label="Edit header title">✎</button>
+            </div>
+            <div class="behavior-row card-name-row">
+              <div><strong id="settingHeroSubtitle">Small steps count. Be gentle with yourself today.</strong><small>Line under the main title</small></div>
+              <button class="tiny-btn edit-section-name" data-copy="heroSubtitle" title="Edit header subtitle" aria-label="Edit header subtitle">✎</button>
+            </div>
+          </div>
           <h3 style="font-family:var(--font-display);margin:22px 0 10px">Other card names</h3>
           <div class="behavior-list">
             <div class="behavior-row card-name-row">
@@ -734,7 +754,7 @@
       </div>
       <div class="modal-body">
         <label class="form-label"><span id="renameFieldLabel">Name</span>
-          <input class="field-input" id="renameSectionInput" required maxlength="40">
+          <input class="field-input" id="renameSectionInput" maxlength="40">
           <textarea class="notes hidden" id="renameCopyInput" maxlength="240"></textarea>
         </label>
         <div class="modal-actions">
@@ -783,6 +803,9 @@
           reminder: "A gentle reminder"
         },
         reminderText: "Small progress still counts. Rest when you need to, ask for help when you can, and contact your care team if something feels wrong.",
+        heroEyebrow: "30-day recovery plan",
+        heroTitle: "",
+        heroSubtitle: "Small steps count. Be gentle with yourself today.",
         theme: {
           primary: "#1f5962",
           accent: "#e88373",
@@ -946,7 +969,11 @@
         manageRoutineHeading: h.routine, manageGoalsHeading: h.goals, manageMetricsHeading: h.metrics,
         behaviorRoutineName: h.routine, behaviorGoalsName: h.goals, behaviorMetricsName: h.metrics,
         settingMoodName: h.mood, settingNotesName: h.notes, settingReminderName: h.reminder,
-        reminderMessage: state.config.reminderText, settingReminderText: state.config.reminderText
+        reminderMessage: state.config.reminderText, settingReminderText: state.config.reminderText,
+        heroEyebrow: state.config.heroEyebrow, heroSubtitle: state.config.heroSubtitle,
+        settingHeroEyebrow: state.config.heroEyebrow,
+        settingHeroTitle: state.config.heroTitle || "Automatic greeting",
+        settingHeroSubtitle: state.config.heroSubtitle
       };
       Object.entries(pairs).forEach(([id, value]) => {
         const el = document.getElementById(id);
@@ -988,7 +1015,8 @@
       document.getElementById("nextDay").disabled = selectedDate >= todayKey();
       document.getElementById("nextDay").style.opacity = selectedDate >= todayKey() ? ".35" : "1";
       const hour = new Date().getHours();
-      document.getElementById("greeting").textContent = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+      const automaticGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+      document.getElementById("greeting").textContent = state.config.heroTitle || automaticGreeting;
 
       const log = getLog();
       renderSectionItems("routine", "routineItems", "routineCount", log);
@@ -1501,12 +1529,25 @@
           : renaming.heading
           ? state.config.headings[renaming.heading]
           : getCustomSection(renaming.sectionId)?.name;
+        const copyTitles = {
+          reminderText: "Edit reminder message",
+          heroEyebrow: "Edit header label",
+          heroTitle: "Edit header title",
+          heroSubtitle: "Edit header subtitle"
+        };
+        const copyLabels = {
+          reminderText: "Message",
+          heroEyebrow: "Header label",
+          heroTitle: "Header title",
+          heroSubtitle: "Subtitle"
+        };
         document.getElementById("renameSectionTitle").textContent = renaming.copy
-          ? "Edit reminder message"
+          ? copyTitles[renaming.copy] || "Edit text"
           : renaming.heading && ["mood","notes","reminder"].includes(renaming.heading) ? "Rename card" : "Rename section";
-        document.getElementById("renameFieldLabel").textContent = renaming.copy ? "Message" : "Name";
+        document.getElementById("renameFieldLabel").textContent = renaming.copy ? (copyLabels[renaming.copy] || "Text") : "Name";
         document.getElementById("renameSectionInput").value = currentName || "";
         document.getElementById("renameCopyInput").value = currentName || "";
+        document.getElementById("renameCopyInput").placeholder = renaming.copy === "heroTitle" ? "Leave blank to use the automatic greeting" : "";
         document.getElementById("renameSectionInput").classList.toggle("hidden", Boolean(renaming.copy));
         document.getElementById("renameCopyInput").classList.toggle("hidden", !renaming.copy);
         document.getElementById("renameSectionDialog").showModal();
@@ -1640,7 +1681,7 @@
     document.getElementById("renameSectionForm").addEventListener("submit", event => {
       event.preventDefault();
       const name = (renaming.copy ? document.getElementById("renameCopyInput") : document.getElementById("renameSectionInput")).value.trim();
-      if (!name) return;
+      if (!name && renaming.copy !== "heroTitle") return;
       if (renaming.copy) state.config[renaming.copy] = name;
       else if (renaming.heading) state.config.headings[renaming.heading] = name;
       else {
